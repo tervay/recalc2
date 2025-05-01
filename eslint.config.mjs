@@ -37,7 +37,6 @@ export default tseslint.config([
     },
     rules: {
       "prefer-promise-reject-errors": ["error"],
-      "no-console": "warn",
       "no-else-return": "error",
       "@typescript-eslint/only-throw-error": [
         "error",

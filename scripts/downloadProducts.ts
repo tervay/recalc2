@@ -1,12 +1,18 @@
 import { program } from "commander";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
-import { JSONPulleySchema, type JSONBelt, type JSONPulley } from "~/lib/types";
-
-interface ShopifyConfig {
-  vendorName: string;
-  rootDomain: string;
-}
+import { type JSONBelt, wcpBeltToJsonBelt, zWCPBelt } from "~/lib/types/belts";
+import { wcpGearToJsonGear, zWCPGear, type JSONGear } from "~/lib/types/gears";
+import {
+  wcpPulleyToJsonPulley,
+  zWCPPulley,
+  type JSONPulley,
+} from "~/lib/types/pulleys";
+import type {
+  ShopifyConfig,
+  ShopifyProduct,
+  ShopifyResponse,
+} from "~/lib/types/shopify";
 
 function urlForHandle(handle: string, vendor: string) {
   const conf = CONFIGS.find((c) => c.vendorName === vendor);
@@ -22,64 +28,6 @@ const CONFIGS: ShopifyConfig[] = [
     rootDomain: "https://wcproducts.com",
   },
 ];
-
-export interface ShopifyResponse {
-  products: ShopifyProduct[];
-}
-
-export interface ShopifyProduct {
-  id: number;
-  title: string;
-  handle: string;
-  body_html: string;
-  published_at: string;
-  created_at: string;
-  updated_at: string;
-  vendor: string;
-  product_type: string;
-  tags: string[];
-  variants: ShopifyVariant[];
-  images: ShopifyImage[];
-  options: ShopifyOption[];
-}
-
-export interface ShopifyImage {
-  id: number;
-  created_at: string;
-  position: number;
-  updated_at: string;
-  product_id: number;
-  variant_ids: number[];
-  src: string;
-  width: number;
-  height: number;
-}
-
-export interface ShopifyOption {
-  name: string;
-  position: number;
-  values: string[];
-}
-
-export interface ShopifyVariant {
-  id: number;
-  title: string;
-  option1: string;
-  option2: null;
-  option3: null;
-  sku: null | string;
-  requires_shipping: boolean;
-  taxable: boolean;
-  featured_image: null;
-  available: boolean;
-  price: string;
-  grams: number;
-  compare_at_price: null;
-  position: number;
-  product_id: number;
-  created_at: string;
-  updated_at: string;
-}
 
 async function getAllProducts(vendor: string): Promise<ShopifyProduct[]> {
   const config = CONFIGS.find((c) => c.vendorName === vendor);
@@ -106,7 +54,7 @@ async function getAllProducts(vendor: string): Promise<ShopifyProduct[]> {
 }
 
 async function writeJson(
-  data: JSONBelt[],
+  data: (JSONBelt | JSONPulley | JSONGear)[],
   vendor: string,
   productType: string
 ) {
@@ -128,7 +76,7 @@ async function wcpBelts() {
       const match = product.title.match(regex);
       if (match?.groups) {
         const { teeth, width, profile, pitch } = match.groups;
-        belts.push({
+        const wcpBelt = zWCPBelt.parse({
           teeth: parseInt(teeth),
           width: parseInt(width),
           profile,
@@ -136,8 +84,7 @@ async function wcpBelts() {
           url: urlForHandle(product.handle, "WCP"),
           sku: product.variants[0].sku,
         });
-      } else {
-        console.error(`No match found for product: ${product.title}`);
+        belts.push(wcpBeltToJsonBelt(wcpBelt));
       }
     }
   }
@@ -156,24 +103,55 @@ async function wcpPulleys() {
       const match = product.title.match(regex);
       if (match?.groups) {
         const { teeth, width, profile, pitch, bore } = match.groups;
-        const pulley: JSONPulley = {
+        if (bore === undefined) {
+          continue;
+        }
+
+        const wcpPulley = zWCPPulley.parse({
           teeth: parseInt(teeth),
           width: parseInt(width),
           profile,
           pitch: parseInt(pitch),
-          bore: bore as "8mm" | '1/2" Hex' | "SplineXS",
+          bore,
           url: urlForHandle(product.handle, "WCP"),
           sku: product.variants[0].sku,
-        };
-
-        pulleys.push(JSONPulleySchema.parse(pulley));
-      } else {
-        console.error(`No match found for product: ${product.title}`);
+        });
+        pulleys.push(wcpPulleyToJsonPulley(wcpPulley));
       }
     }
   }
 
   await writeJson(pulleys, "WCP", "pulleys");
+}
+
+async function wcpGears() {
+  const allProducts = await getAllProducts("WCP");
+  const gears: JSONGear[] = [];
+  const regex =
+    /(?<toothCount>\d+)t.*?\(\s*(?<dp>\d+)\s*DP(?:,\s*[^,]+)?,\s*(?<bore>[^)]+)\)/;
+
+  for (const product of allProducts) {
+    if (product.title.includes("Gear")) {
+      const match = product.title.match(regex);
+      if (match?.groups) {
+        const { toothCount, dp, bore } = match.groups;
+        try {
+          const wcpGear = zWCPGear.parse({
+            teeth: parseInt(toothCount),
+            dp: parseInt(dp),
+            bore,
+            url: urlForHandle(product.handle, "WCP"),
+            sku: product.variants[0].sku,
+          });
+          gears.push(wcpGearToJsonGear(wcpGear));
+        } catch {
+          console.error(`Error parsing gear: ${product.title}`);
+        }
+      }
+    }
+  }
+
+  await writeJson(gears, "WCP", "gears");
 }
 
 async function dispatch(vendor: string, productType: string) {
@@ -183,6 +161,9 @@ async function dispatch(vendor: string, productType: string) {
     }
     if (productType === "pulleys") {
       await wcpPulleys();
+    }
+    if (productType === "gears") {
+      await wcpGears();
     }
   }
 }
