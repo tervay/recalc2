@@ -1,0 +1,325 @@
+[
+  {
+    "teeth": 20,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-1754",
+    "sku": "WCP-1754"
+  },
+  {
+    "teeth": 20,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-1755",
+    "sku": "WCP-1755"
+  },
+  {
+    "teeth": 16,
+    "width": 15,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "8mm",
+    "url": "https://wcproducts.com/products/wcp-0393",
+    "sku": "WCP-0393"
+  },
+  {
+    "teeth": 18,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1805",
+    "sku": "WCP-1805"
+  },
+  {
+    "teeth": 16,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1804",
+    "sku": "WCP-1804"
+  },
+  {
+    "teeth": 14,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1803",
+    "sku": "WCP-1803"
+  },
+  {
+    "teeth": 16,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1802",
+    "sku": "WCP-1802"
+  },
+  {
+    "teeth": 14,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1801",
+    "sku": "WCP-1801"
+  },
+  {
+    "teeth": 18,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1634",
+    "sku": "WCP-1634"
+  },
+  {
+    "teeth": 18,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm Key",
+    "url": "https://wcproducts.com/products/wcp-1659",
+    "sku": "WCP-1659"
+  },
+  {
+    "teeth": 15,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-1420",
+    "sku": "WCP-1420"
+  },
+  {
+    "teeth": 12,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1018",
+    "sku": "WCP-1018"
+  },
+  {
+    "teeth": 12,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1017",
+    "sku": "WCP-1017"
+  },
+  {
+    "teeth": 16,
+    "width": 15,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1179",
+    "sku": "WCP-1179"
+  },
+  {
+    "teeth": 16,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "8mm SplineXS",
+    "url": "https://wcproducts.com/products/wcp-1178",
+    "sku": "WCP-1178"
+  },
+  {
+    "teeth": 15,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "url": "https://wcproducts.com/products/wcp-0562",
+    "sku": "WCP-0562"
+  },
+  {
+    "teeth": 12,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "Falcon",
+    "url": "https://wcproducts.com/products/wcp-0454",
+    "sku": "WCP-0454"
+  },
+  {
+    "teeth": 12,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "Falcon",
+    "url": "https://wcproducts.com/products/wcp-0319",
+    "sku": "WCP-0319"
+  },
+  {
+    "teeth": 16,
+    "width": 15,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "Falcon",
+    "url": "https://wcproducts.com/products/wcp-0318",
+    "sku": "WCP-0318"
+  },
+  {
+    "teeth": 12,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm Key",
+    "url": "https://wcproducts.com/products/wcp-0077",
+    "sku": "WCP-0077"
+  },
+  {
+    "teeth": 12,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "8mm Key",
+    "url": "https://wcproducts.com/products/wcp-0076",
+    "sku": "WCP-0076"
+  },
+  {
+    "teeth": 16,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "Falcon",
+    "url": "https://wcproducts.com/products/wcp-0603",
+    "sku": "WCP-0603"
+  },
+  {
+    "teeth": 60,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0665",
+    "sku": "WCP-0665"
+  },
+  {
+    "teeth": 24,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0662",
+    "sku": "WCP-0662"
+  },
+  {
+    "teeth": 48,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0664",
+    "sku": "WCP-0664"
+  },
+  {
+    "teeth": 36,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0663",
+    "sku": "WCP-0663"
+  },
+  {
+    "teeth": 12,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "RS775",
+    "url": "https://wcproducts.com/products/wcp-0616",
+    "sku": "WCP-0616"
+  },
+  {
+    "teeth": 12,
+    "width": 9,
+    "profile": "GT2",
+    "pitch": 3,
+    "bore": "RS550",
+    "url": "https://wcproducts.com/products/wcp-0614",
+    "sku": "WCP-0614"
+  },
+  {
+    "teeth": 36,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0994",
+    "sku": "WCP-0994"
+  },
+  {
+    "teeth": 30,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0993",
+    "sku": "WCP-0993"
+  },
+  {
+    "teeth": 24,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0992",
+    "sku": "WCP-0992"
+  },
+  {
+    "teeth": 18,
+    "width": 15,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0991",
+    "sku": "WCP-0991"
+  },
+  {
+    "teeth": 36,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0990",
+    "sku": "WCP-0990"
+  },
+  {
+    "teeth": 30,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0565",
+    "sku": "WCP-0565"
+  },
+  {
+    "teeth": 24,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0564",
+    "sku": "WCP-0564"
+  },
+  {
+    "teeth": 18,
+    "width": 9,
+    "profile": "HTD",
+    "pitch": 5,
+    "bore": "1/2\" Hex",
+    "url": "https://wcproducts.com/products/wcp-0563",
+    "sku": "WCP-0563"
+  }
+]
