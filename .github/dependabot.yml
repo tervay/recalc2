@@ -4,3 +4,32 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      react-router:
+        patterns:
+          - "react-router"
+          - "@react-router/*"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "tw-animate-css"
+          - "tailwind-merge"
+      linting:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "globals"
+      vite:
+        patterns:
+          - "vite"
+          - "vite-tsconfig-paths"
+          - "@tailwindcss/vite"
