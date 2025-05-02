@@ -8,13 +8,11 @@ export function meta() {
   ];
 }
 
-interface QueryParams {
-  hello: string;
-  foo: number;
-}
-
 export default function Belts() {
-  const queryParams = useQueryParams<QueryParams>(
+  const queryParams = useQueryParams<{
+    hello: string;
+    foo: number;
+  }>(
     {
       hello: StringParam,
       foo: NumberParam,

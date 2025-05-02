@@ -50,6 +50,8 @@ export default tseslint.config([
         "error",
         { allowNumber: true },
       ],
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
     },
   },
 
