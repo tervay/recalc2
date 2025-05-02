@@ -1,7 +1,21 @@
-import type { Length } from "@buge/ts-units/length";
-import type { Mass } from "@buge/ts-units/mass";
-import queryString from "query-string";
-import { measureFromDict, measureToDict } from "~/lib/models/Measure";
+import queryString from 'query-string';
+
+import Measurement from '~/lib/models/Measurement';
+
+export interface DefaultAndQueryParamProvider<T> {
+  queryParam: QueryParam<T>;
+  defaultValue: T;
+}
+
+export function withDefault<T>(
+  param: QueryParam<T>,
+  defaultValue: T,
+): DefaultAndQueryParamProvider<T> {
+  return {
+    queryParam: param,
+    defaultValue,
+  };
+}
 
 export interface QueryParam<T> {
   encode: (value: T) => string;
@@ -20,15 +34,21 @@ export const NumberParam: QueryParam<number> = {
 
 export const BooleanParam: QueryParam<boolean> = {
   encode: (value) => value.toString(),
-  decode: (value) => value === "true",
+  decode: (value) => value === 'true',
 };
 
-export const LengthParam: QueryParam<Length> = {
-  encode: (value) => queryString.stringify(measureToDict(value)),
-  decode: (value) => measureFromDict(queryString.parse(value)) as Length,
-};
+export const MeasurementParam: QueryParam<Measurement> = {
+  encode: (value) => queryString.stringify(value.toDict()),
+  decode: (value) => {
+    const parsed = queryString.parse(value);
 
-export const MassParam: QueryParam<Mass> = {
-  encode: (value) => queryString.stringify(measureToDict(value)),
-  decode: (value) => measureFromDict(queryString.parse(value)) as Mass,
+    if ('s' in parsed && 'u' in parsed) {
+      return Measurement.fromDict({
+        s: Number(parsed.s),
+        u: parsed.u as string,
+      });
+    }
+
+    throw new Error('Invalid measurement');
+  },
 };

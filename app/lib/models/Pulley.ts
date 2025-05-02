@@ -1,42 +1,64 @@
-import Model from "~/lib/models/Model";
-import type { Bore } from "~/lib/types/common";
-import type { JSONPulley } from "~/lib/types/pulleys";
-import { millimeters, type Length } from "@buge/ts-units/length";
-import { measureToDict } from "~/lib/models/Measure";
+import Measurement from '~/lib/models/Measurement';
+import Model from '~/lib/models/Model';
+import type { Bore } from '~/lib/types/common';
+import type { JSONPulley } from '~/lib/types/pulleys';
 
-export default class Pulley extends Model {
+export class SimplePulley extends Model {
+  public readonly pitchDiameter: Measurement;
+
   constructor(
     public readonly teeth: number,
-    public readonly width: Length,
+    public readonly pitch: Measurement,
+  ) {
+    super('SimplePulley');
+    this.pitchDiameter = this.pitch.mul(this.teeth).mul(Math.PI);
+  }
+
+  public toDict(): Record<string, unknown> {
+    return {
+      teeth: this.teeth,
+      pitch: this.pitch.toDict(),
+    };
+  }
+
+  eq<M extends Model>(m: M): boolean {
+    return false;
+  }
+}
+
+export default class Pulley extends SimplePulley {
+  constructor(
+    public readonly teeth: number,
+    public readonly width: Measurement,
     public readonly profile: string,
-    public readonly pitch: Length,
+    public readonly pitch: Measurement,
     public readonly sku: string | null,
     public readonly url: string,
-    public readonly bore: Bore
+    public readonly bore: Bore,
   ) {
-    super("Pulley");
+    super(teeth, pitch);
   }
 
   public fromJson(json: JSONPulley): Pulley {
     return new Pulley(
       json.teeth,
-      millimeters(json.width),
+      new Measurement(json.width, 'mm'),
       json.profile,
-      millimeters(json.pitch),
+      new Measurement(json.pitch, 'mm'),
       json.sku,
       json.url,
-      json.bore
+      json.bore,
     );
   }
 
   public toDict(): Record<string, unknown> {
     return {
       teeth: this.teeth,
-      pitch: measureToDict(this.pitch),
+      pitch: this.pitch.toDict(),
     };
   }
 
-  eq<M extends Model>(m: M): boolean {
+  eq<M extends Model>(_m: M): boolean {
     return false;
   }
 }

@@ -1,5 +1,6 @@
-import { z } from "zod";
-import { zBore, type Bore } from "~/lib/types/common";
+import { z } from 'zod';
+
+import { type Bore, zBore } from '~/lib/types/common';
 
 export const zJSONPulley = z.object({
   teeth: z.number(),
@@ -15,12 +16,12 @@ export type JSONPulley = z.infer<typeof zJSONPulley>;
 
 export const zWCPPulleyBore = z.enum([
   '1/2" Hex',
-  "8mm",
-  "8mm Key",
-  "8mm SplineXS",
-  "Falcon",
-  "RS775",
-  "RS550",
+  '8mm',
+  '8mm Key',
+  '8mm SplineXS',
+  'Falcon',
+  'RS775',
+  'RS550',
 ] as const);
 export type WCPPulleyBore = z.infer<typeof zWCPPulleyBore>;
 
@@ -38,13 +39,13 @@ export type WCPPulley = z.infer<typeof zWCPPulley>;
 
 export function wcpPulleyToJsonPulley(pulley: WCPPulley): JSONPulley {
   const wcpBoreToJsonBore: Record<WCPPulleyBore, Bore> = {
-    "8mm": "8mm",
+    '8mm': '8mm',
     '1/2" Hex': '1/2" Hex',
-    "8mm Key": "8mm",
-    "8mm SplineXS": "SplineXS",
-    Falcon: "Falcon",
-    RS775: "RS775",
-    RS550: "RS550",
+    '8mm Key': '8mm',
+    '8mm SplineXS': 'SplineXS',
+    Falcon: 'Falcon',
+    RS775: 'RS775',
+    RS550: 'RS550',
   };
 
   return { ...pulley, bore: wcpBoreToJsonBore[pulley.bore] };
