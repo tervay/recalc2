@@ -1,35 +1,38 @@
 version: 2
 updates:
-  - package-ecosystem: "bun"
-    directory: "/"
+  - package-ecosystem: 'bun'
+    directory: '/'
     schedule:
-      interval: "daily"
+      interval: 'daily'
     groups:
       react:
         patterns:
-          - "react"
-          - "react-dom"
-          - "@types/react"
-          - "@types/react-dom"
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
       react-router:
         patterns:
-          - "react-router"
-          - "@react-router/*"
+          - 'react-router'
+          - '@react-router/*'
       tailwind:
         patterns:
-          - "tailwindcss"
-          - "@tailwindcss/*"
-          - "tw-animate-css"
-          - "tailwind-merge"
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'tw-animate-css'
+          - 'tailwind-merge'
       linting:
         patterns:
-          - "eslint"
-          - "eslint-*"
-          - "@eslint/*"
-          - "typescript-eslint"
-          - "globals"
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - 'typescript-eslint'
+          - 'globals'
+          - 'prettier'
+          - 'prettier-*'
+          - '@trivago/prettier-plugin-sort-imports'
       vite:
         patterns:
-          - "vite"
-          - "vite-tsconfig-paths"
-          - "@tailwindcss/vite"
+          - 'vite'
+          - 'vite-tsconfig-paths'
+          - '@tailwindcss/vite'

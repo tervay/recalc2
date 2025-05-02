@@ -1,18 +1,19 @@
-import { program } from "commander";
-import { mkdir, writeFile } from "fs/promises";
-import { join } from "path";
-import { type JSONBelt, wcpBeltToJsonBelt, zWCPBelt } from "~/lib/types/belts";
-import { wcpGearToJsonGear, zWCPGear, type JSONGear } from "~/lib/types/gears";
+import { program } from 'commander';
+import { mkdir, writeFile } from 'fs/promises';
+import { join } from 'path';
+
+import { type JSONBelt, wcpBeltToJsonBelt, zWCPBelt } from '~/lib/types/belts';
+import { type JSONGear, wcpGearToJsonGear, zWCPGear } from '~/lib/types/gears';
 import {
+  type JSONPulley,
   wcpPulleyToJsonPulley,
   zWCPPulley,
-  type JSONPulley,
-} from "~/lib/types/pulleys";
+} from '~/lib/types/pulleys';
 import type {
   ShopifyConfig,
   ShopifyProduct,
   ShopifyResponse,
-} from "~/lib/types/shopify";
+} from '~/lib/types/shopify';
 
 function urlForHandle(handle: string, vendor: string) {
   const conf = CONFIGS.find((c) => c.vendorName === vendor);
@@ -24,8 +25,8 @@ function urlForHandle(handle: string, vendor: string) {
 
 const CONFIGS: ShopifyConfig[] = [
   {
-    vendorName: "WCP",
-    rootDomain: "https://wcproducts.com",
+    vendorName: 'WCP',
+    rootDomain: 'https://wcproducts.com',
   },
 ];
 
@@ -40,7 +41,7 @@ async function getAllProducts(vendor: string): Promise<ShopifyProduct[]> {
 
   while (true) {
     const response = await fetch(
-      `${config.rootDomain}/products.json?page=${pageNum}&limit=250`
+      `${config.rootDomain}/products.json?page=${pageNum}&limit=250`,
     );
     const data = (await response.json()) as ShopifyResponse;
     if (data.products.length === 0) {
@@ -56,9 +57,9 @@ async function getAllProducts(vendor: string): Promise<ShopifyProduct[]> {
 async function writeJson(
   data: (JSONBelt | JSONPulley | JSONGear)[],
   vendor: string,
-  productType: string
+  productType: string,
 ) {
-  const outdir = join(process.cwd(), "app/genData", vendor);
+  const outdir = join(process.cwd(), 'app/genData', vendor);
   const outFile = join(outdir, `${productType}.json`);
 
   await mkdir(outdir, { recursive: true });
@@ -68,11 +69,11 @@ async function writeJson(
 async function wcpBelts() {
   const regex =
     /(?<teeth>\d+)t\s*x\s*(?<width>\d+)mm.*\((?<profile>HTD|GT2)\s*(?<pitch>\d+)mm\)/;
-  const allProducts = await getAllProducts("WCP");
+  const allProducts = await getAllProducts('WCP');
   const belts: JSONBelt[] = [];
 
   for (const product of allProducts) {
-    if (product.title.includes("Timing Belt")) {
+    if (product.title.includes('Timing Belt')) {
       const match = product.title.match(regex);
       if (match?.groups) {
         const { teeth, width, profile, pitch } = match.groups;
@@ -81,7 +82,7 @@ async function wcpBelts() {
           width: parseInt(width),
           profile,
           pitch: parseInt(pitch),
-          url: urlForHandle(product.handle, "WCP"),
+          url: urlForHandle(product.handle, 'WCP'),
           sku: product.variants[0].sku,
         });
         belts.push(wcpBeltToJsonBelt(wcpBelt));
@@ -89,17 +90,17 @@ async function wcpBelts() {
     }
   }
 
-  await writeJson(belts, "WCP", "belts");
+  await writeJson(belts, 'WCP', 'belts');
 }
 
 async function wcpPulleys() {
   const regex =
     /(?<teeth>\d+)t\s*x\s*(?<width>\d+)mm\s*Wide\s*(?<flangeType>.*)\s*(?<profile>GT2|HTD)\s*(?<pitch>\d+)mm(?:.*,\s*(?<bore>.*?) Bore\))?/;
-  const allProducts = await getAllProducts("WCP");
+  const allProducts = await getAllProducts('WCP');
   const pulleys: JSONPulley[] = [];
 
   for (const product of allProducts) {
-    if (product.title.includes("Pulley")) {
+    if (product.title.includes('Pulley')) {
       const match = product.title.match(regex);
       if (match?.groups) {
         const { teeth, width, profile, pitch, bore } = match.groups;
@@ -113,7 +114,7 @@ async function wcpPulleys() {
           profile,
           pitch: parseInt(pitch),
           bore,
-          url: urlForHandle(product.handle, "WCP"),
+          url: urlForHandle(product.handle, 'WCP'),
           sku: product.variants[0].sku,
         });
         pulleys.push(wcpPulleyToJsonPulley(wcpPulley));
@@ -121,17 +122,17 @@ async function wcpPulleys() {
     }
   }
 
-  await writeJson(pulleys, "WCP", "pulleys");
+  await writeJson(pulleys, 'WCP', 'pulleys');
 }
 
 async function wcpGears() {
-  const allProducts = await getAllProducts("WCP");
+  const allProducts = await getAllProducts('WCP');
   const gears: JSONGear[] = [];
   const regex =
     /(?<toothCount>\d+)t.*?\(\s*(?<dp>\d+)\s*DP(?:,\s*[^,]+)?,\s*(?<bore>[^)]+)\)/;
 
   for (const product of allProducts) {
-    if (product.title.includes("Gear")) {
+    if (product.title.includes('Gear')) {
       const match = product.title.match(regex);
       if (match?.groups) {
         const { toothCount, dp, bore } = match.groups;
@@ -140,7 +141,7 @@ async function wcpGears() {
             teeth: parseInt(toothCount),
             dp: parseInt(dp),
             bore,
-            url: urlForHandle(product.handle, "WCP"),
+            url: urlForHandle(product.handle, 'WCP'),
             sku: product.variants[0].sku,
           });
           gears.push(wcpGearToJsonGear(wcpGear));
@@ -151,28 +152,28 @@ async function wcpGears() {
     }
   }
 
-  await writeJson(gears, "WCP", "gears");
+  await writeJson(gears, 'WCP', 'gears');
 }
 
 async function dispatch(vendor: string, productType: string) {
-  if (vendor === "WCP") {
-    if (productType === "belts") {
+  if (vendor === 'WCP') {
+    if (productType === 'belts') {
       await wcpBelts();
     }
-    if (productType === "pulleys") {
+    if (productType === 'pulleys') {
       await wcpPulleys();
     }
-    if (productType === "gears") {
+    if (productType === 'gears') {
       await wcpGears();
     }
   }
 }
 
 program
-  .name("download-products")
-  .description("Download products from Shopify")
-  .argument("<vendor>", "Vendor name (e.g. WCP, TTB, SDS")
-  .argument("<productType>", "Product type (e.g. belts)")
+  .name('download-products')
+  .description('Download products from Shopify')
+  .argument('<vendor>', 'Vendor name (e.g. WCP, TTB, SDS')
+  .argument('<productType>', 'Product type (e.g. belts)')
   .action(async (vendor: string, productType: string) => {
     await dispatch(vendor, productType);
   });
