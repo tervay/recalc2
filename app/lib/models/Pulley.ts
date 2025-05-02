@@ -11,7 +11,7 @@ export class SimplePulley extends Model {
     public readonly pitch: Measurement,
   ) {
     super('SimplePulley');
-    this.pitchDiameter = this.pitch.mul(this.teeth).mul(Math.PI);
+    this.pitchDiameter = this.pitch.mul(this.teeth).div(Math.PI);
   }
 
   public toDict(): Record<string, unknown> {
@@ -39,7 +39,7 @@ export default class Pulley extends SimplePulley {
     super(teeth, pitch);
   }
 
-  public fromJson(json: JSONPulley): Pulley {
+  public static fromJson(json: JSONPulley): Pulley {
     return new Pulley(
       json.teeth,
       new Measurement(json.width, 'mm'),

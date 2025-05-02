@@ -8,6 +8,7 @@ import {
 } from 'react-router';
 
 import '~/app.css';
+import Nav from '~/components/recalc/nav';
 
 import type { Route } from '.react-router/types/app/+types/root';
 
@@ -34,6 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <Nav />
         <div className="container mx-auto">{children}</div>
         <ScrollRestoration />
         <Scripts />

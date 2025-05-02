@@ -7,10 +7,6 @@ import type {
   QueryParam,
 } from '~/lib/types/queryParams';
 
-type QueryParamEncodeDecodeMap<T extends Record<string, QueryParam<any>>> = {
-  [K in keyof T]: QueryParam<T[K]>;
-};
-
 type QueryParamEncodeDecodeMapWithDefaults<
   T extends Record<string, QueryParam<any>>,
 > = {

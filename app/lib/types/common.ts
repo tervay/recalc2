@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from 'react';
 import { z } from 'zod';
 
 export const zBore = z.enum([
@@ -14,3 +15,9 @@ export const zBore = z.enum([
   'BAG',
 ] as const);
 export type Bore = z.infer<typeof zBore>;
+
+export type StateHook<T> = [T, Dispatch<SetStateAction<T>>];
+
+export type HasStateHook<T> = {
+  stateHook: StateHook<T>;
+};
