@@ -28,6 +28,10 @@ const CONFIGS: ShopifyConfig[] = [
     vendorName: 'WCP',
     rootDomain: 'https://wcproducts.com',
   },
+  {
+    vendorName: 'Swyft',
+    rootDomain: 'https://swyftrobotics.com',
+  },
 ];
 
 async function getAllProducts(vendor: string): Promise<ShopifyProduct[]> {
@@ -84,6 +88,7 @@ async function wcpBelts() {
           pitch: parseInt(pitch),
           url: urlForHandle(product.handle, 'WCP'),
           sku: product.variants[0].sku,
+          vendor: 'WCP',
         });
         belts.push(wcpBeltToJsonBelt(wcpBelt));
       }
@@ -155,6 +160,31 @@ async function wcpGears() {
   await writeJson(gears, 'WCP', 'gears');
 }
 
+async function swyftBelts() {
+  const allProducts = await getAllProducts('Swyft');
+  const belts: JSONBelt[] = [];
+
+  for (const product of allProducts) {
+    if (product.title.includes('Timing Belt')) {
+      const width = product.title.startsWith('15') ? 15 : 9;
+
+      for (const variant of product.variants) {
+        belts.push({
+          teeth: Number(variant.title),
+          width,
+          profile: 'HTD',
+          pitch: 5,
+          sku: variant.sku,
+          url: urlForHandle(product.handle, 'Swyft'),
+          vendor: 'Swyft',
+        });
+      }
+    }
+  }
+
+  await writeJson(belts, 'Swyft', 'belts');
+}
+
 async function dispatch(vendor: string, productType: string) {
   if (vendor === 'WCP') {
     if (productType === 'belts') {
@@ -166,6 +196,15 @@ async function dispatch(vendor: string, productType: string) {
     if (productType === 'gears') {
       await wcpGears();
     }
+  }
+  if (vendor === 'Swyft') {
+    if (productType === 'belts') {
+      await swyftBelts();
+    }
+  }
+
+  if (vendor === 'all' && productType === 'all') {
+    await Promise.all([wcpBelts(), wcpPulleys(), wcpGears(), swyftBelts()]);
   }
 }
 

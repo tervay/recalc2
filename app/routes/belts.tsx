@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 
 import { BeltTable } from '~/components/recalc/beltTable';
+import IOLine from '~/components/recalc/blocks';
+import CalcHeading from '~/components/recalc/calcHeading';
 import Divider from '~/components/recalc/divider';
 import BooleanInput from '~/components/recalc/io/boolean';
 import {
@@ -83,151 +85,154 @@ export default function Belts() {
   );
 
   return (
-    <div className="mt-10 flex flex-row gap-4">
-      <div className="flex flex-col gap-x-4 gap-y-2">
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <MeasurementInput stateHook={[pitch, setPitch]} label="Pitch" />
-          <NumberInput
-            stateHook={[toothIncrement, setToothIncrement]}
-            label="Tooth Increment"
-          />
-        </div>
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <MeasurementInput
-            stateHook={[desiredCenter, setDesiredCenter]}
-            label="Target Center"
-          />
-          <MeasurementInput
-            stateHook={[extraCenter, setExtraCenter]}
-            label="Extra Center"
-          />
-        </div>
+    <div>
+      <CalcHeading />
+      <div className="flex flex-row flex-wrap gap-x-4 px-1 [&>*]:flex-1">
+        <div className="flex flex-col gap-x-4 gap-y-2">
+          <IOLine>
+            <MeasurementInput stateHook={[pitch, setPitch]} label="Pitch" />
+            <NumberInput
+              stateHook={[toothIncrement, setToothIncrement]}
+              label="Tooth Increment"
+            />
+          </IOLine>
+          <IOLine>
+            <MeasurementInput
+              stateHook={[desiredCenter, setDesiredCenter]}
+              label="Target Center"
+            />
+            <MeasurementInput
+              stateHook={[extraCenter, setExtraCenter]}
+              label="Extra Center"
+            />
+          </IOLine>
 
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <BooleanInput
-            stateHook={[useCustomBelt, setUseCustomBelt]}
-            label="Use Custom Belt"
-          />
-          <NumberInput
-            stateHook={[customBeltTeeth, setCustomBeltTeeth]}
-            label="Custom Belt Teeth"
-          />
-        </div>
+          <IOLine>
+            <BooleanInput
+              stateHook={[useCustomBelt, setUseCustomBelt]}
+              label="Use Custom Belt"
+            />
+            <NumberInput
+              stateHook={[customBeltTeeth, setCustomBeltTeeth]}
+              label="Custom Belt Teeth"
+            />
+          </IOLine>
 
-        <Divider className="">Pulley 1</Divider>
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <NumberInput stateHook={[p1Teeth, setP1Teeth]} label="Teeth" />
-          <MeasurementOutput
-            state={p1PitchDiameter}
-            label="Pitch Diameter"
-            defaultUnit="in"
-          />
-        </div>
+          <Divider className="">Pulley 1</Divider>
+          <IOLine>
+            <NumberInput stateHook={[p1Teeth, setP1Teeth]} label="Teeth" />
+            <MeasurementOutput
+              state={p1PitchDiameter}
+              label="Pitch Diameter"
+              defaultUnit="in"
+            />
+          </IOLine>
 
-        <Divider className="">Pulley 2</Divider>
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <NumberInput stateHook={[p2Teeth, setP2Teeth]} label="Teeth" />
-          <MeasurementOutput
-            state={p2PitchDiameter}
-            label="Pitch Diameter"
-            defaultUnit="in"
-          />
-        </div>
+          <Divider className="">Pulley 2</Divider>
+          <IOLine>
+            <NumberInput stateHook={[p2Teeth, setP2Teeth]} label="Teeth" />
+            <MeasurementOutput
+              state={p2PitchDiameter}
+              label="Pitch Diameter"
+              defaultUnit="in"
+            />
+          </IOLine>
 
-        <Divider className="">Smaller Belt</Divider>
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <NumberOutput
-            state={results.smaller.belt.teeth}
-            label="Belt Teeth"
-            roundTo={0}
-          />
-          <MeasurementOutput
-            state={results.smaller.distance}
-            label="Center Distance"
-            defaultUnit="in"
-          />
-        </div>
+          <Divider className="">Smaller Belt</Divider>
+          <IOLine>
+            <NumberOutput
+              state={results.smaller.belt.teeth}
+              label="Belt Teeth"
+              roundTo={0}
+            />
+            <MeasurementOutput
+              state={results.smaller.distance}
+              label="Center Distance"
+              defaultUnit="in"
+            />
+          </IOLine>
 
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <NumberOutput
-            state={results.smaller.p1TeethInMesh}
-            label="Pulley 1 Teeth in Mesh"
-            roundTo={0}
-          />
-          <NumberOutput
-            state={results.smaller.p2TeethInMesh}
-            label="Pulley 2 Teeth in Mesh"
-            roundTo={0}
-          />
-        </div>
+          <IOLine>
+            <NumberOutput
+              state={results.smaller.p1TeethInMesh}
+              label="Pulley 1 Teeth in Mesh"
+              roundTo={0}
+            />
+            <NumberOutput
+              state={results.smaller.p2TeethInMesh}
+              label="Pulley 2 Teeth in Mesh"
+              roundTo={0}
+            />
+          </IOLine>
 
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <MeasurementOutput
-            state={results.smaller.gapBetweenPulleys}
-            label="Gap Between Pulleys"
-            defaultUnit="in"
-          />
-          <MeasurementOutput
-            state={results.smaller.differenceFromTarget}
-            label="Difference From Target"
-            defaultUnit="in"
-          />
-        </div>
+          <IOLine>
+            <MeasurementOutput
+              state={results.smaller.gapBetweenPulleys}
+              label="Gap Between Pulleys"
+              defaultUnit="in"
+            />
+            <MeasurementOutput
+              state={results.smaller.differenceFromTarget}
+              label="Difference From Target"
+              defaultUnit="in"
+            />
+          </IOLine>
 
-        <Divider className="">Larger Belt</Divider>
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <NumberOutput
-            state={results.larger.belt.teeth}
-            label="Belt Teeth"
-            roundTo={0}
-          />
-          <MeasurementOutput
-            state={results.larger.distance}
-            label="Center Distance"
-            defaultUnit="in"
-          />
-        </div>
+          <Divider className="">Larger Belt</Divider>
+          <IOLine>
+            <NumberOutput
+              state={results.larger.belt.teeth}
+              label="Belt Teeth"
+              roundTo={0}
+            />
+            <MeasurementOutput
+              state={results.larger.distance}
+              label="Center Distance"
+              defaultUnit="in"
+            />
+          </IOLine>
 
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <NumberOutput
-            state={results.larger.p1TeethInMesh}
-            label="Pulley 1 Teeth in Mesh"
-            roundTo={0}
-          />
-          <NumberOutput
-            state={results.larger.p2TeethInMesh}
-            label="Pulley 2 Teeth in Mesh"
-            roundTo={0}
-          />
-        </div>
+          <IOLine>
+            <NumberOutput
+              state={results.larger.p1TeethInMesh}
+              label="Pulley 1 Teeth in Mesh"
+              roundTo={0}
+            />
+            <NumberOutput
+              state={results.larger.p2TeethInMesh}
+              label="Pulley 2 Teeth in Mesh"
+              roundTo={0}
+            />
+          </IOLine>
 
-        <div className="flex flex-row gap-4 [&>*]:w-1/2">
-          <MeasurementOutput
-            state={results.larger.gapBetweenPulleys}
-            label="Gap Between Pulleys"
-            defaultUnit="in"
+          <IOLine>
+            <MeasurementOutput
+              state={results.larger.gapBetweenPulleys}
+              label="Gap Between Pulleys"
+              defaultUnit="in"
+            />
+            <MeasurementOutput
+              state={results.larger.differenceFromTarget}
+              label="Difference From Target"
+              defaultUnit="in"
+            />
+          </IOLine>
+        </div>
+        <div className="flex w-auto flex-col gap-x-4 gap-y-4">
+          <PulleyTable
+            filterFn={(pulley) =>
+              pulley.pitch.eq(pitch) &&
+              (pulley.teeth == p1Teeth || pulley.teeth == p2Teeth)
+            }
           />
-          <MeasurementOutput
-            state={results.larger.differenceFromTarget}
-            label="Difference From Target"
-            defaultUnit="in"
+          <BeltTable
+            filterFn={(belt) =>
+              belt.pitch.eq(pitch) &&
+              (belt.teeth == results.larger.belt.teeth ||
+                belt.teeth == results.smaller.belt.teeth)
+            }
           />
         </div>
-      </div>
-      <div className="flex flex-col gap-4">
-        <BeltTable
-          filterFn={(belt) =>
-            new Measurement(belt.pitch, 'mm').eq(pitch) &&
-            (belt.teeth == results.larger.belt.teeth ||
-              belt.teeth == results.smaller.belt.teeth)
-          }
-        />
-        <PulleyTable
-          filterFn={(pulley) =>
-            pulley.pitch.eq(pitch) &&
-            (pulley.teeth == p1Teeth || pulley.teeth == p2Teeth)
-          }
-        />
       </div>
     </div>
   );

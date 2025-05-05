@@ -7,6 +7,7 @@ export const zJSONBelt = z.object({
   pitch: z.number().min(1), // mm
   sku: z.string().nullable(),
   url: z.string().url(),
+  vendor: z.string(),
 });
 
 export type JSONBelt = z.infer<typeof zJSONBelt>;
@@ -15,5 +16,5 @@ export const zWCPBelt = zJSONBelt;
 export type WCPBelt = z.infer<typeof zWCPBelt>;
 
 export function wcpBeltToJsonBelt(belt: WCPBelt): JSONBelt {
-  return { ...belt };
+  return { ...belt, vendor: 'WCP' };
 }

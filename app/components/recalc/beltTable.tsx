@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router';
 
 import {
@@ -8,17 +9,36 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import swyftBelts from '~/genData/Swyft/belts.json';
 import wcpBelts from '~/genData/WCP/belts.json';
+import { Belt } from '~/lib/models/Belt';
 
 export function BeltTable({
   filterFn = () => true,
 }: {
-  filterFn?: (belt: (typeof wcpBelts)[number]) => boolean;
+  filterFn?: (belt: Belt) => boolean;
 }) {
+  const belts = useMemo(() => {
+    return [...wcpBelts, ...swyftBelts]
+      .map((b) => Belt.fromJson(b))
+      .filter(filterFn)
+      .sort(
+        (a, b) =>
+          a.teeth - b.teeth ||
+          a.vendor.localeCompare(b.vendor) ||
+          a.width.baseScalar - b.width.baseScalar,
+      );
+  }, [filterFn]);
+
   return (
-    <div>
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
+          <TableRow>
+            <TableHead colSpan={5} className="text-center font-bold">
+              Matching COTS Belts
+            </TableHead>
+          </TableRow>
           <TableRow>
             <TableHead>SKU</TableHead>
             <TableHead>Type</TableHead>
@@ -28,20 +48,19 @@ export function BeltTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {wcpBelts
-            .filter(filterFn)
-            .sort((belt) => belt.teeth)
-            .map((belt) => (
-              <TableRow key={belt.sku}>
-                <TableCell className="font-medium">
-                  <Link to={belt.url}>{belt.sku}</Link>
-                </TableCell>
-                <TableCell>{belt.profile}</TableCell>
-                <TableCell>{belt.pitch}</TableCell>
-                <TableCell>{belt.teeth}</TableCell>
-                <TableCell>{belt.width}</TableCell>
-              </TableRow>
-            ))}
+          {belts.map((belt) => (
+            <TableRow key={belt.sku}>
+              <TableCell className="font-medium">
+                <Link to={belt.url}>
+                  {belt.vendor} - {belt.sku}
+                </Link>
+              </TableCell>
+              <TableCell>{belt.profile}</TableCell>
+              <TableCell>{belt.pitch.format()}</TableCell>
+              <TableCell>{belt.teeth}</TableCell>
+              <TableCell>{belt.width.format()}</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>

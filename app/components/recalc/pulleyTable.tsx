@@ -34,9 +34,14 @@ export function PulleyTable({
   }, [filterFn]);
 
   return (
-    <div>
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
+          <TableRow>
+            <TableHead colSpan={6} className="text-center font-bold">
+              Matching COTS Pulleys
+            </TableHead>
+          </TableRow>
           <TableRow>
             <TableHead>SKU</TableHead>
             <TableHead>Type</TableHead>
@@ -50,7 +55,9 @@ export function PulleyTable({
           {pulleys.map((pulley) => (
             <TableRow key={pulley.sku}>
               <TableCell className="font-medium">
-                <Link to={pulley.url}>{pulley.sku}</Link>
+                <Link to={pulley.url}>
+                  {pulley.vendor} - {pulley.sku}
+                </Link>
               </TableCell>
               <TableCell>{pulley.profile}</TableCell>
               <TableCell>{pulley.pitch.toString()}</TableCell>

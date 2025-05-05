@@ -35,6 +35,7 @@ export default class Pulley extends SimplePulley {
     public readonly sku: string | null,
     public readonly url: string,
     public readonly bore: Bore,
+    public readonly vendor: string,
   ) {
     super(teeth, pitch);
   }
@@ -48,6 +49,7 @@ export default class Pulley extends SimplePulley {
       json.sku,
       json.url,
       json.bore,
+      json.vendor,
     );
   }
 
