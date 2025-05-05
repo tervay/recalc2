@@ -9,8 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import thriftyPulleys from '~/genData/Thrifty/pulleys.json';
 import wcpPulleys from '~/genData/WCP/pulleys.json';
-import Pulley, { SimplePulley } from '~/lib/models/Pulley';
+import Pulley from '~/lib/models/Pulley';
 import type { Bore } from '~/lib/types/common';
 
 export function PulleyTable({
@@ -19,7 +20,7 @@ export function PulleyTable({
   filterFn?: (pulley: Pulley) => boolean;
 }) {
   const pulleys = useMemo(() => {
-    return wcpPulleys
+    return [...wcpPulleys, ...thriftyPulleys]
       .map((p) => {
         const pulleyData = {
           ...p,

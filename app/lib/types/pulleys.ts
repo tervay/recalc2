@@ -55,3 +55,40 @@ export function wcpPulleyToJsonPulley(pulley: WCPPulley): JSONPulley {
     vendor: 'WCP',
   };
 }
+
+export const zThriftyPulleyBore = z.enum([
+  'Kraken Spline',
+  'Falcon',
+  '8mm Keyed',
+  'Bearing / Hub',
+  '1/2" Hex',
+] as const);
+export type ThriftyPulleyBore = z.infer<typeof zThriftyPulleyBore>;
+
+export const zThriftyPulley = z.object({
+  teeth: z.number(),
+  profile: z.enum(['HTD']),
+  bore: zThriftyPulleyBore,
+  sku: z.string(),
+  url: z.string().url(),
+});
+
+export type ThriftyPulley = z.infer<typeof zThriftyPulley>;
+
+export function thriftyPulleyToJsonPulley(pulley: ThriftyPulley): JSONPulley {
+  const thriftyBoreToJsonBore: Record<ThriftyPulleyBore, Bore> = {
+    'Kraken Spline': 'SplineXS',
+    Falcon: 'Falcon',
+    '8mm Keyed': '8mm',
+    'Bearing / Hub': '1.125" Round',
+    '1/2" Hex': '1/2" Hex',
+  };
+
+  return {
+    ...pulley,
+    bore: thriftyBoreToJsonBore[pulley.bore],
+    vendor: 'Thrifty',
+    width: 18.5,
+    pitch: 5,
+  };
+}
