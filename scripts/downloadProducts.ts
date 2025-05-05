@@ -1,7 +1,10 @@
 import { program } from 'commander';
 import { mkdir, writeFile } from 'fs/promises';
+import NodeFetchCache, { FileSystemCache } from 'node-fetch-cache';
 import { join } from 'path';
 
+import { SimpleBelt } from '~/lib/models/Belt';
+import Measurement from '~/lib/models/Measurement';
 import { type JSONBelt, wcpBeltToJsonBelt, zWCPBelt } from '~/lib/types/belts';
 import { type JSONGear, wcpGearToJsonGear, zWCPGear } from '~/lib/types/gears';
 import {
@@ -38,7 +41,18 @@ const CONFIGS: ShopifyConfig[] = [
     vendorName: 'TheThriftyBot',
     rootDomain: 'https://www.thethriftybot.com',
   },
+  {
+    vendorName: 'VBeltGuys',
+    rootDomain: 'https://www.vbeltguys.com',
+  },
 ];
+
+const fetch = NodeFetchCache.create({
+  cache: new FileSystemCache({
+    cacheDirectory: join(process.cwd(), '.cache'),
+  }),
+  shouldCacheResponse: (response) => [200, 404].includes(response.status),
+});
 
 async function getAllProducts(vendor: string): Promise<ShopifyProduct[]> {
   const config = CONFIGS.find((c) => c.vendorName === vendor);
@@ -192,14 +206,47 @@ async function swyftBelts() {
 }
 
 async function vbeltGuysBelts() {
-  const allProducts = await getAllProducts('VBeltGuys');
   const belts: JSONBelt[] = [];
+  const toothIncrement = 5;
 
-  for (const product of allProducts) {
-    for (const variant of product.variants) {
-      console.log(`${product.title} - ${variant.title}`);
+  for (const pitchMm of [3, 5]) {
+    for (const widthMm of [9, 15]) {
+      let toothCount = 5;
+
+      while (toothCount <= 1000) {
+        const simpleBelt = new SimpleBelt(
+          toothCount,
+          new Measurement(pitchMm, 'mm'),
+        );
+        const beltLength = Math.round(simpleBelt.length.to('mm').scalar);
+        const pitchStr = simpleBelt.pitch.format().replace(' mm', 'm');
+        const widthStr = new Measurement(widthMm, 'mm')
+          .format()
+          .replace(' mm', '')
+          .padStart(2, '0');
+
+        const url = `https://www.vbeltguys.com/products/${beltLength}-${pitchStr}-${widthStr}-synchronous-timing-belt`;
+
+        const response = await fetch(url);
+        if (response.status === 200) {
+          belts.push({
+            teeth: toothCount,
+            width: widthMm,
+            profile: pitchMm === 3 ? 'GT2' : 'HTD',
+            pitch: pitchMm,
+            sku: `${beltLength}-${pitchStr}-${widthStr}`,
+            url: url,
+            vendor: 'VBeltGuys',
+          });
+        }
+
+        toothCount += toothIncrement;
+        console.log(`${url} // ${response.status}`);
+      }
     }
   }
+
+  await writeJson(belts, 'VBeltGuys', 'belts');
 }
 
 async function thriftyPulleys() {
@@ -284,7 +331,7 @@ async function dispatch(vendor: string, productType: string) {
       await swyftBelts();
     }
   }
-  if (vendor === 'VBeltGuys') {
+  if (vendor === 'vbg') {
     if (productType === 'belts') {
       await vbeltGuysBelts();
     }
