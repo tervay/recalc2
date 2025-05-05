@@ -10,6 +10,7 @@ export const zJSONPulley = z.object({
   sku: z.string().nullable(),
   url: z.string().url(),
   bore: zBore,
+  vendor: z.string(),
 });
 
 export type JSONPulley = z.infer<typeof zJSONPulley>;
@@ -48,5 +49,9 @@ export function wcpPulleyToJsonPulley(pulley: WCPPulley): JSONPulley {
     RS550: 'RS550',
   };
 
-  return { ...pulley, bore: wcpBoreToJsonBore[pulley.bore] };
+  return {
+    ...pulley,
+    bore: wcpBoreToJsonBore[pulley.bore],
+    vendor: 'WCP',
+  };
 }

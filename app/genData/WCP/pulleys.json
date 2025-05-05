@@ -6,7 +6,8 @@
     "pitch": 5,
     "sku": "WCP-1754",
     "url": "https://wcproducts.com/products/wcp-1754",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 20,
@@ -15,7 +16,8 @@
     "pitch": 5,
     "sku": "WCP-1755",
     "url": "https://wcproducts.com/products/wcp-1755",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 16,
@@ -24,7 +26,8 @@
     "pitch": 3,
     "sku": "WCP-0393",
     "url": "https://wcproducts.com/products/wcp-0393",
-    "bore": "8mm"
+    "bore": "8mm",
+    "vendor": "WCP"
   },
   {
     "teeth": 18,
@@ -33,7 +36,8 @@
     "pitch": 5,
     "sku": "WCP-1805",
     "url": "https://wcproducts.com/products/wcp-1805",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 16,
@@ -42,7 +46,8 @@
     "pitch": 5,
     "sku": "WCP-1804",
     "url": "https://wcproducts.com/products/wcp-1804",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 14,
@@ -51,7 +56,8 @@
     "pitch": 5,
     "sku": "WCP-1803",
     "url": "https://wcproducts.com/products/wcp-1803",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 16,
@@ -60,7 +66,8 @@
     "pitch": 5,
     "sku": "WCP-1802",
     "url": "https://wcproducts.com/products/wcp-1802",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 14,
@@ -69,7 +76,8 @@
     "pitch": 5,
     "sku": "WCP-1801",
     "url": "https://wcproducts.com/products/wcp-1801",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 18,
@@ -78,7 +86,8 @@
     "pitch": 5,
     "sku": "WCP-1634",
     "url": "https://wcproducts.com/products/wcp-1634",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 18,
@@ -87,7 +96,8 @@
     "pitch": 5,
     "sku": "WCP-1659",
     "url": "https://wcproducts.com/products/wcp-1659",
-    "bore": "8mm"
+    "bore": "8mm",
+    "vendor": "WCP"
   },
   {
     "teeth": 15,
@@ -96,7 +106,8 @@
     "pitch": 5,
     "sku": "WCP-1420",
     "url": "https://wcproducts.com/products/wcp-1420",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -105,7 +116,8 @@
     "pitch": 5,
     "sku": "WCP-1018",
     "url": "https://wcproducts.com/products/wcp-1018",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -114,7 +126,8 @@
     "pitch": 5,
     "sku": "WCP-1017",
     "url": "https://wcproducts.com/products/wcp-1017",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 16,
@@ -123,7 +136,8 @@
     "pitch": 3,
     "sku": "WCP-1179",
     "url": "https://wcproducts.com/products/wcp-1179",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 16,
@@ -132,7 +146,8 @@
     "pitch": 3,
     "sku": "WCP-1178",
     "url": "https://wcproducts.com/products/wcp-1178",
-    "bore": "SplineXS"
+    "bore": "SplineXS",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -141,7 +156,8 @@
     "pitch": 5,
     "sku": "WCP-0454",
     "url": "https://wcproducts.com/products/wcp-0454",
-    "bore": "Falcon"
+    "bore": "Falcon",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -150,7 +166,8 @@
     "pitch": 5,
     "sku": "WCP-0319",
     "url": "https://wcproducts.com/products/wcp-0319",
-    "bore": "Falcon"
+    "bore": "Falcon",
+    "vendor": "WCP"
   },
   {
     "teeth": 16,
@@ -159,7 +176,8 @@
     "pitch": 3,
     "sku": "WCP-0318",
     "url": "https://wcproducts.com/products/wcp-0318",
-    "bore": "Falcon"
+    "bore": "Falcon",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -168,7 +186,8 @@
     "pitch": 5,
     "sku": "WCP-0077",
     "url": "https://wcproducts.com/products/wcp-0077",
-    "bore": "8mm"
+    "bore": "8mm",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -177,7 +196,8 @@
     "pitch": 5,
     "sku": "WCP-0076",
     "url": "https://wcproducts.com/products/wcp-0076",
-    "bore": "8mm"
+    "bore": "8mm",
+    "vendor": "WCP"
   },
   {
     "teeth": 16,
@@ -186,7 +206,8 @@
     "pitch": 3,
     "sku": "WCP-0603",
     "url": "https://wcproducts.com/products/wcp-0603",
-    "bore": "Falcon"
+    "bore": "Falcon",
+    "vendor": "WCP"
   },
   {
     "teeth": 60,
@@ -195,7 +216,8 @@
     "pitch": 3,
     "sku": "WCP-0665",
     "url": "https://wcproducts.com/products/wcp-0665",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 24,
@@ -204,7 +226,8 @@
     "pitch": 3,
     "sku": "WCP-0662",
     "url": "https://wcproducts.com/products/wcp-0662",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 48,
@@ -213,7 +236,8 @@
     "pitch": 3,
     "sku": "WCP-0664",
     "url": "https://wcproducts.com/products/wcp-0664",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 36,
@@ -222,7 +246,8 @@
     "pitch": 3,
     "sku": "WCP-0663",
     "url": "https://wcproducts.com/products/wcp-0663",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -231,7 +256,8 @@
     "pitch": 3,
     "sku": "WCP-0616",
     "url": "https://wcproducts.com/products/wcp-0616",
-    "bore": "RS775"
+    "bore": "RS775",
+    "vendor": "WCP"
   },
   {
     "teeth": 12,
@@ -240,7 +266,8 @@
     "pitch": 3,
     "sku": "WCP-0614",
     "url": "https://wcproducts.com/products/wcp-0614",
-    "bore": "RS550"
+    "bore": "RS550",
+    "vendor": "WCP"
   },
   {
     "teeth": 36,
@@ -249,7 +276,8 @@
     "pitch": 5,
     "sku": "WCP-0994",
     "url": "https://wcproducts.com/products/wcp-0994",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 30,
@@ -258,7 +286,8 @@
     "pitch": 5,
     "sku": "WCP-0993",
     "url": "https://wcproducts.com/products/wcp-0993",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 24,
@@ -267,7 +296,8 @@
     "pitch": 5,
     "sku": "WCP-0992",
     "url": "https://wcproducts.com/products/wcp-0992",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 18,
@@ -276,7 +306,8 @@
     "pitch": 5,
     "sku": "WCP-0991",
     "url": "https://wcproducts.com/products/wcp-0991",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 36,
@@ -285,7 +316,8 @@
     "pitch": 5,
     "sku": "WCP-0990",
     "url": "https://wcproducts.com/products/wcp-0990",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 30,
@@ -294,7 +326,8 @@
     "pitch": 5,
     "sku": "WCP-0565",
     "url": "https://wcproducts.com/products/wcp-0565",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 24,
@@ -303,7 +336,8 @@
     "pitch": 5,
     "sku": "WCP-0564",
     "url": "https://wcproducts.com/products/wcp-0564",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   },
   {
     "teeth": 18,
@@ -312,6 +346,7 @@
     "pitch": 5,
     "sku": "WCP-0563",
     "url": "https://wcproducts.com/products/wcp-0563",
-    "bore": "1/2\" Hex"
+    "bore": "1/2\" Hex",
+    "vendor": "WCP"
   }
 ]

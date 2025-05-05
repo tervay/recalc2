@@ -8,6 +8,7 @@ export const zJSONGear = z.object({
   bore: zBore,
   url: z.string().url(),
   sku: z.string().nullable(),
+  vendor: z.string(),
 });
 
 export type JSONGear = z.infer<typeof zJSONGear>;
@@ -57,5 +58,5 @@ export function wcpGearToJsonGear(gear: WCPGear): JSONGear {
     'Pinion Only': '8mm',
   };
 
-  return { ...gear, bore: wcpBoreToJsonBore[gear.bore] };
+  return { ...gear, bore: wcpBoreToJsonBore[gear.bore], vendor: 'WCP' };
 }
