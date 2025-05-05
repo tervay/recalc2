@@ -6,7 +6,9 @@ import { type JSONBelt, wcpBeltToJsonBelt, zWCPBelt } from '~/lib/types/belts';
 import { type JSONGear, wcpGearToJsonGear, zWCPGear } from '~/lib/types/gears';
 import {
   type JSONPulley,
+  thriftyPulleyToJsonPulley,
   wcpPulleyToJsonPulley,
+  zThriftyPulley,
   zWCPPulley,
 } from '~/lib/types/pulleys';
 import type {
@@ -31,6 +33,10 @@ const CONFIGS: ShopifyConfig[] = [
   {
     vendorName: 'Swyft',
     rootDomain: 'https://swyftrobotics.com',
+  },
+  {
+    vendorName: 'TheThriftyBot',
+    rootDomain: 'https://www.thethriftybot.com',
   },
 ];
 
@@ -185,8 +191,84 @@ async function swyftBelts() {
   await writeJson(belts, 'Swyft', 'belts');
 }
 
+async function vbeltGuysBelts() {
+  const allProducts = await getAllProducts('VBeltGuys');
+  const belts: JSONBelt[] = [];
+
+  for (const product of allProducts) {
+    for (const variant of product.variants) {
+      console.log(`${product.title} - ${variant.title}`);
+    }
+  }
+}
+
+async function thriftyPulleys() {
+  const allProducts = await getAllProducts('TheThriftyBot');
+  const pulleys: JSONPulley[] = [];
+
+  for (const product of allProducts) {
+    if (product.title.includes('Pulley')) {
+      /* 2 cases:
+      QTY 1 - 48 Tooth HTD Pulley - Bearing / Hub Bore
+      QTY 1 - 36 Tooth HTD Pulley 1/2" Hex Bore
+      QTY 1 - 24 Tooth HTD Pulley 1/2" Hex Bore
+
+      or
+
+      QTY 1 - 11 Tooth HTD Falcon Motor Output Pulley
+      QTY 1 - 11 Tooth HTD 8mm Keyed Motor Output Pulley
+      */
+
+      if (product.title.endsWith('Pulley')) {
+        const regex =
+          /QTY \d+ - (?<tooth>\d+) Tooth (?<profile>\w+) (?<bore>[\w\s]+) Motor Output Pulley/i;
+
+        const match = product.title.match(regex);
+        if (match?.groups) {
+          const { tooth, profile, bore } = match.groups;
+          try {
+            const thriftyPulley = zThriftyPulley.parse({
+              teeth: parseInt(tooth),
+              profile,
+              bore,
+              sku: product.variants[0].sku,
+              url: urlForHandle(product.handle, 'TheThriftyBot'),
+            });
+            pulleys.push(thriftyPulleyToJsonPulley(thriftyPulley));
+          } catch {
+            console.log(`Error parsing pulley: ${product.title}`);
+          }
+        }
+      } else {
+        const regex =
+          /QTY \d+ - (?<tooth>\d+) Tooth (?<profile>\w+) Pulley(?: - (?<bore1>.+?)| (?<bore2>.+?)) Bore/i;
+
+        const match = product.title.match(regex);
+        if (match?.groups) {
+          const { tooth, profile, bore1, bore2 } = match.groups;
+          const bore = bore1 ?? bore2;
+          try {
+            const thriftyPulley = zThriftyPulley.parse({
+              teeth: parseInt(tooth),
+              profile,
+              bore,
+              sku: product.variants[0].sku,
+              url: urlForHandle(product.handle, 'TheThriftyBot'),
+            });
+            pulleys.push(thriftyPulleyToJsonPulley(thriftyPulley));
+          } catch {
+            console.log(`Error parsing pulley: ${product.title}`);
+          }
+        }
+      }
+    }
+  }
+
+  await writeJson(pulleys, 'Thrifty', 'pulleys');
+}
+
 async function dispatch(vendor: string, productType: string) {
-  if (vendor === 'WCP') {
+  if (vendor === 'wcp') {
     if (productType === 'belts') {
       await wcpBelts();
     }
@@ -197,14 +279,30 @@ async function dispatch(vendor: string, productType: string) {
       await wcpGears();
     }
   }
-  if (vendor === 'Swyft') {
+  if (vendor === 'swyft') {
     if (productType === 'belts') {
       await swyftBelts();
     }
   }
+  if (vendor === 'VBeltGuys') {
+    if (productType === 'belts') {
+      await vbeltGuysBelts();
+    }
+  }
+  if (vendor === 'thrifty') {
+    if (productType === 'pulleys') {
+      await thriftyPulleys();
+    }
+  }
 
   if (vendor === 'all' && productType === 'all') {
-    await Promise.all([wcpBelts(), wcpPulleys(), wcpGears(), swyftBelts()]);
+    await Promise.all([
+      wcpBelts(),
+      wcpPulleys(),
+      wcpGears(),
+      swyftBelts(),
+      thriftyPulleys(),
+    ]);
   }
 }
 
@@ -214,7 +312,7 @@ program
   .argument('<vendor>', 'Vendor name (e.g. WCP, TTB, SDS')
   .argument('<productType>', 'Product type (e.g. belts)')
   .action(async (vendor: string, productType: string) => {
-    await dispatch(vendor, productType);
+    await dispatch(vendor.toLowerCase(), productType.toLowerCase());
   });
 
 program.parse();
