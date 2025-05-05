@@ -4,3 +4,10 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export function roundToNearestMulitple(
+  roundable: number,
+  multipleOf: number,
+): number {
+  return Math.ceil(roundable / multipleOf) * multipleOf;
+}
