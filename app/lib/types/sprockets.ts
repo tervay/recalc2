@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { type Bore, zBore } from '~/lib/types/common';
 
 const zChainType = z.enum(['#25', '#35']);
+export type ChainType = z.infer<typeof zChainType>;
 
 export const zJSONSprocket = z.object({
   teeth: z.number(),

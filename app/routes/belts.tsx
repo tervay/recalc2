@@ -86,7 +86,7 @@ export default function Belts() {
 
   return (
     <div>
-      <CalcHeading />
+      <CalcHeading title="Belt Calculator" />
       <div className="flex flex-row flex-wrap gap-x-4 px-1 [&>*]:flex-1">
         <div className="flex flex-col gap-x-4 gap-y-2">
           <IOLine>
