@@ -19,6 +19,11 @@ import type {
   ShopifyProduct,
   ShopifyResponse,
 } from '~/lib/types/shopify';
+import {
+  type JSONSprocket,
+  wcpSprocketToJsonSprocket,
+  zWCPSprocket,
+} from '~/lib/types/sprockets';
 
 function urlForHandle(handle: string, vendor: string) {
   const conf = CONFIGS.find((c) => c.vendorName === vendor);
@@ -79,7 +84,7 @@ async function getAllProducts(vendor: string): Promise<ShopifyProduct[]> {
 }
 
 async function writeJson(
-  data: (JSONBelt | JSONPulley | JSONGear)[],
+  data: (JSONBelt | JSONPulley | JSONGear | JSONSprocket)[],
   vendor: string,
   productType: string,
 ) {
@@ -178,6 +183,32 @@ async function wcpGears() {
   }
 
   await writeJson(gears, 'WCP', 'gears');
+}
+
+async function wcpSprockets() {
+  const allProducts = await getAllProducts('WCP');
+  const sprockets: JSONSprocket[] = [];
+  const regex = /(?<tooth>\d+)t.*?\((?<chain>#\d+)[^)]+,\s*(?<bore>[^)]+)\)/;
+
+  for (const product of allProducts) {
+    if (product.title.includes('Sprocket')) {
+      const match = product.title.match(regex);
+      if (match?.groups) {
+        const { tooth, chain, bore } = match.groups;
+
+        const wcpSprocket = zWCPSprocket.parse({
+          teeth: parseInt(tooth),
+          chainType: chain,
+          bore,
+          url: urlForHandle(product.handle, 'WCP'),
+          sku: product.variants[0].sku,
+        });
+        sprockets.push(wcpSprocketToJsonSprocket(wcpSprocket));
+      }
+    }
+  }
+
+  await writeJson(sprockets, 'WCP', 'sprockets');
 }
 
 async function swyftBelts() {
@@ -325,6 +356,9 @@ async function dispatch(vendor: string, productType: string) {
     if (productType === 'gears') {
       await wcpGears();
     }
+    if (productType === 'sprockets') {
+      await wcpSprockets();
+    }
   }
   if (vendor === 'swyft') {
     if (productType === 'belts') {
@@ -347,6 +381,7 @@ async function dispatch(vendor: string, productType: string) {
       wcpBelts(),
       wcpPulleys(),
       wcpGears(),
+      wcpSprockets(),
       swyftBelts(),
       thriftyPulleys(),
     ]);

@@ -9,6 +9,15 @@ export default function NumberInput({
   label,
 }: HasStateHook<number> & { label: string }) {
   const [value, setValue] = stateHook;
+  const [proxyValue, setProxyValue] = useState(value.toString());
+
+  useEffect(() => {
+    if (proxyValue !== '' && proxyValue !== '0') {
+      setValue(Number(proxyValue));
+    } else {
+      setValue(0);
+    }
+  }, [proxyValue, setValue]);
 
   return (
     <div className="flex flex-row">
@@ -19,8 +28,14 @@ export default function NumberInput({
         type="number"
         id="number"
         placeholder={label}
-        value={value}
-        onChange={(e) => setValue(Number(e.target.value))}
+        value={proxyValue}
+        onChange={(e) => {
+          if (e.target.value !== '') {
+            setProxyValue(e.target.value);
+          } else {
+            setProxyValue('');
+          }
+        }}
       />
     </div>
   );
@@ -52,7 +67,7 @@ export function NumberOutput({
         disabled
         placeholder={label}
         value={stringified}
-        className="rounded-r-none"
+        className="disabled:bg-gray-100 disabled:text-gray-900"
       />
     </div>
   );
