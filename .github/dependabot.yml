@@ -36,3 +36,14 @@ updates:
           - 'vite'
           - 'vite-tsconfig-paths'
           - '@tailwindcss/vite'
+      radix:
+        patterns:
+          - '@radix-ui/*'
+      js-quantities:
+        patterns:
+          - 'js-quantities'
+          - '@types/js-quantities'
+      lodash:
+        patterns:
+          - 'lodash-es'
+          - '@types/lodash-es'
