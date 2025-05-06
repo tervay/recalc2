@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import thriftySprockets from '~/genData/Thrifty/sprockets.json';
 import wcpSprockets from '~/genData/WCP/sprockets.json';
 import Sprocket from '~/lib/models/Sprocket';
 import type { Bore } from '~/lib/types/common';
@@ -20,7 +21,7 @@ export function SprocketTable({
   filterFn?: (sprocket: Sprocket) => boolean;
 }) {
   const sprockets = useMemo(() => {
-    return [...wcpSprockets]
+    return [...wcpSprockets, ...thriftySprockets]
       .map((p) => {
         const sprocketData = {
           ...p,

@@ -20,8 +20,12 @@ import type {
   ShopifyResponse,
 } from '~/lib/types/shopify';
 import {
+  type ChainType,
   type JSONSprocket,
+  type ThriftySprocketBore,
+  thriftySprocketToJsonSprocket,
   wcpSprocketToJsonSprocket,
+  zThriftySprocket,
   zWCPSprocket,
 } from '~/lib/types/sprockets';
 
@@ -345,6 +349,62 @@ async function thriftyPulleys() {
   await writeJson(pulleys, 'Thrifty', 'pulleys');
 }
 
+async function thriftySprockets() {
+  const allProducts = await getAllProducts('TheThriftyBot');
+  const sprockets: JSONSprocket[] = [];
+
+  for (const product of allProducts) {
+    for (const variant of product.variants) {
+      if (
+        product.title === '#35 Chain Billet Sprockets' ||
+        product.title === '#35 Flat Plate Sprockets'
+      ) {
+        sprockets.push({
+          teeth: parseInt(variant.title.split(' ')[0]),
+          bore: '1.125" Round',
+          chainType: '#35',
+          sku: variant.sku,
+          url: urlForHandle(product.handle, 'TheThriftyBot'),
+          vendor: 'Thrifty',
+        });
+      } else if (
+        product.title === '#25 Chain Billet Sprockets' ||
+        product.title === '#25 Flat Plate Sprockets'
+      ) {
+        sprockets.push({
+          teeth: parseInt(variant.title.split(' ')[0]),
+          bore: '1.125" Round',
+          chainType: '#25',
+          sku: variant.sku,
+          url: urlForHandle(product.handle, 'TheThriftyBot'),
+          vendor: 'Thrifty',
+        });
+      } else {
+        const regex =
+          /(?<chainType>#\d+).*?(?<toothCount>\d+)\s+Tooth\s+(?<boreType>.+? Bore)/;
+        if (variant.title.includes('Sprocket')) {
+          for (const variant of product.variants) {
+            const match = `${product.title} // ${variant.title}`.match(regex);
+            if (match?.groups) {
+              const { chainType, toothCount, boreType } = match.groups;
+              const thriftySprocket = zThriftySprocket.parse({
+                chainType: chainType as ChainType,
+                teeth: Number(toothCount),
+                bore: boreType as ThriftySprocketBore,
+                sku: variant.sku,
+                url: urlForHandle(product.handle, 'TheThriftyBot'),
+              });
+              sprockets.push(thriftySprocketToJsonSprocket(thriftySprocket));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  await writeJson(sprockets, 'Thrifty', 'sprockets');
+}
+
 async function dispatch(vendor: string, productType: string) {
   if (vendor === 'wcp') {
     if (productType === 'belts') {
@@ -374,6 +434,9 @@ async function dispatch(vendor: string, productType: string) {
     if (productType === 'pulleys') {
       await thriftyPulleys();
     }
+    if (productType === 'sprockets') {
+      await thriftySprockets();
+    }
   }
 
   if (vendor === 'all' && productType === 'all') {
@@ -384,6 +447,7 @@ async function dispatch(vendor: string, productType: string) {
       wcpSprockets(),
       swyftBelts(),
       thriftyPulleys(),
+      thriftySprockets(),
     ]);
   }
 }
