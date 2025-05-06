@@ -56,3 +56,36 @@ export function wcpSprocketToJsonSprocket(sprocket: WCPSprocket): JSONSprocket {
     vendor: 'WCP',
   };
 }
+
+export const zThriftySprocketBore = z.enum([
+  '3/8\" Hex Bore',
+  '1/2\" Hex Bore',
+  '8mm Keyed Bore',
+]);
+export type ThriftySprocketBore = z.infer<typeof zThriftySprocketBore>;
+
+export const zThriftySprocket = z.object({
+  teeth: z.number(),
+  bore: zThriftySprocketBore,
+  chainType: zChainType,
+  sku: z.string(),
+  url: z.string().url(),
+});
+
+export type ThriftySprocket = z.infer<typeof zThriftySprocket>;
+
+export function thriftySprocketToJsonSprocket(
+  sprocket: ThriftySprocket,
+): JSONSprocket {
+  const thriftyBoreToJsonBore: Record<ThriftySprocketBore, Bore> = {
+    '3/8\" Hex Bore': '3/8" Hex',
+    '1/2\" Hex Bore': '1/2" Hex',
+    '8mm Keyed Bore': '8mm',
+  };
+
+  return {
+    ...sprocket,
+    bore: thriftyBoreToJsonBore[sprocket.bore],
+    vendor: 'Thrifty',
+  };
+}

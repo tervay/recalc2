@@ -95,7 +95,7 @@ export function MeasurementOutput({
           disabled
           placeholder={label}
           value={stringified}
-          className="rounded-r-none"
+          className="rounded-r-none disabled:bg-gray-100 disabled:text-gray-900"
         />
         <Select value={unit} onValueChange={setUnit}>
           <SelectTrigger className="rounded-l-none">
