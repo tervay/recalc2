@@ -13,8 +13,9 @@ import IOLine from '~/components/recalc/blocks';
 import { MeasurementInput } from '~/components/recalc/io/measurement';
 import { StringSelectInput } from '~/components/recalc/io/stringSelect';
 import { ChartContainer } from '~/components/ui/chart';
+import { solveMotorODE } from '~/lib/math/ode';
 import Measurement from '~/lib/models/Measurement';
-import {
+import Motor, {
   ALL_MOTORS,
   completeMotorSpecs,
   generateMotorCurves,
@@ -29,8 +30,11 @@ export function meta() {
 
 export default function Motors() {
   const [selectedMotor, setSelectedMotor] = useState(ALL_MOTORS[0].name);
+
   const [statorLimit, setStatorLimit] = useState(new Measurement(90, 'A'));
   const [supplyLimit, setSupplyLimit] = useState(new Measurement(60, 'A'));
+  const [supplyVoltage, setSupplyVoltage] = useState(new Measurement(12, 'V'));
+  const [statorVoltage, setStatorVoltage] = useState(new Measurement(6, 'V'));
 
   const selectedMotorSpecs = useMemo(
     () => ALL_MOTORS.find((m) => m.name === selectedMotor)!,
@@ -40,11 +44,14 @@ export default function Motors() {
   const motorCurve = useMemo(
     () =>
       generateMotorCurves(
-        completeMotorSpecs(selectedMotorSpecs),
-        Measurement.max(statorLimit, new Measurement(1, 'A')),
-        Measurement.max(supplyLimit, new Measurement(1, 'A')),
+        {
+          ...completeMotorSpecs(selectedMotorSpecs),
+          voltage: supplyVoltage,
+        },
+        statorLimit,
+        supplyLimit,
       ),
-    [selectedMotorSpecs, statorLimit, supplyLimit],
+    [selectedMotorSpecs, statorLimit, supplyLimit, supplyVoltage],
   );
 
   const numericalCurve = useMemo(
@@ -62,6 +69,30 @@ export default function Motors() {
     [motorCurve],
   );
 
+  const odeData = useMemo(() => {
+    const data = solveMotorODE(
+      Motor.fromName(selectedMotor).withVoltage(statorVoltage),
+      statorVoltage,
+      supplyVoltage,
+      supplyLimit,
+      statorLimit,
+      (info) => info.stepNumber >= 200,
+      new Measurement(0.0001, 'kg m2'),
+      new Measurement(0, 'N m'),
+      100,
+    );
+
+    const chartData = data.ys.map((y, i) => ({
+      time: data.ts[i],
+      velocity: new Measurement(y[0], 'rad/s').to('rpm').scalar,
+      current: y[1],
+      currLimit: y[2],
+      position: y[3],
+    }));
+
+    return chartData;
+  }, [selectedMotor, supplyLimit, supplyVoltage, statorVoltage, statorLimit]);
+
   return (
     <div>
       <div className="flex flex-col gap-x-4 gap-y-2">
@@ -74,48 +105,72 @@ export default function Motors() {
             stateHook={[selectedMotor, setSelectedMotor]}
             label="Motor"
           />
+        </IOLine>
+        <IOLine>
           <MeasurementInput
             stateHook={[statorLimit, setStatorLimit]}
             label="Stator Limit"
           />
           <MeasurementInput
+            stateHook={[statorVoltage, setStatorVoltage]}
+            label="Stator Voltage"
+          />
+        </IOLine>
+        <IOLine>
+          <MeasurementInput
             stateHook={[supplyLimit, setSupplyLimit]}
             label="Supply Limit"
+          />
+          <MeasurementInput
+            stateHook={[supplyVoltage, setSupplyVoltage]}
+            label="Supply Voltage"
           />
         </IOLine>
       </div>
 
-      <ChartContainer
-        config={{
-          freeCurrent: {
-            color: 'red',
-          },
-        }}
-        className="min-h-[200px] w-full"
-      >
-        <LineChart data={numericalCurve}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="speedPercentage" />
-          <YAxis yAxisId="left" />
-          <YAxis yAxisId="right" orientation="right" />
-          <Tooltip />
-          <Line
-            dataKey="statorCurrent"
-            dot={false}
-            yAxisId="left"
-            stroke="yellow"
-          />
-          <Line dataKey="torque" dot={false} yAxisId="right" stroke="green" />
-          <Line dataKey="outputPower" dot={false} yAxisId="left" stroke="red" />
-          <Line
-            dataKey="efficiency"
-            dot={false}
-            yAxisId="right"
-            stroke="blue"
-          />
-          <Legend />
-        </LineChart>
-      </ChartContainer>
+      <div className="mt-4 flex flex-row">
+        <ChartContainer config={{}} className="min-h-[200px] w-full">
+          <LineChart data={numericalCurve}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="speedPercentage" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <Tooltip />
+            <Line
+              dataKey="statorCurrent"
+              dot={false}
+              yAxisId="left"
+              stroke="yellow"
+            />
+            <Line dataKey="torque" dot={false} yAxisId="right" stroke="green" />
+            <Line
+              dataKey="outputPower"
+              dot={false}
+              yAxisId="left"
+              stroke="red"
+            />
+            <Line
+              dataKey="efficiency"
+              dot={false}
+              yAxisId="right"
+              stroke="blue"
+            />
+            <Legend />
+          </LineChart>
+        </ChartContainer>
+
+        <ChartContainer config={{}} className="min-h-[200px] w-full">
+          <LineChart data={odeData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="time" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <Tooltip />
+
+            <Line dataKey="velocity" dot={false} yAxisId="left" stroke="red" />
+          </LineChart>
+        </ChartContainer>
+      </div>
     </div>
   );
 }
