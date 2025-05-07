@@ -27,9 +27,9 @@ export function generateODEData(
   efficiency: number,
   angle_: MeasurementDict,
 ): LinearODEResult[] {
-  const motor = Motor.fromDict(motor_);
   const statorVoltage = Measurement.fromDict(statorVoltage_);
   const supplyVoltage = Measurement.fromDict(supplyVoltage_);
+  const motor = Motor.fromDict(motor_);
   const statorLimit = Measurement.fromDict(statorLimit_);
   const supplyLimit = Measurement.fromDict(supplyLimit_);
   const travelDistance = Measurement.fromDict(travelDistance_);
@@ -60,8 +60,8 @@ export function generateODEData(
     motor,
     statorVoltage,
     supplyVoltage,
-    statorLimit,
     supplyLimit,
+    statorLimit,
     (info) =>
       info.position
         .linearizeRadialPosition(

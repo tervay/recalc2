@@ -138,6 +138,7 @@ export default class Motor extends Model {
     public readonly stallCurrent: Measurement,
     public readonly freeCurrent: Measurement,
     public readonly voltage: Measurement,
+    public readonly quantity: number,
   ) {
     super(identifier);
 
@@ -159,7 +160,7 @@ export default class Motor extends Model {
     // }).solve().power;
   }
 
-  public static fromSpecs(specs: MotorSpecs) {
+  public static fromSpecs(specs: MotorSpecs, quantity: number) {
     return new Motor(
       specs.name,
       specs.freeSpeed,
@@ -167,55 +168,23 @@ export default class Motor extends Model {
       specs.stallCurrent,
       specs.freeCurrent,
       specs.voltage,
+      quantity,
     );
   }
 
-  public static fromName(name: string) {
-    return this.fromSpecs(ALL_MOTORS.find((m) => m.name === name)!);
-  }
-
-  public withReduction(ratio: number) {
-    return new Motor(
-      this.identifier,
-      this.freeSpeed.div(ratio),
-      this.stallTorque.mul(ratio),
-      this.stallCurrent,
-      this.freeCurrent,
-      this.voltage,
-    );
-  }
-
-  public withQuantity(quantity: number) {
-    return new Motor(
-      this.identifier,
-      this.freeSpeed,
-      this.stallTorque.mul(quantity),
-      this.stallCurrent.mul(quantity),
-      this.freeCurrent.mul(quantity),
-      this.voltage,
-    );
-  }
-
-  public withVoltage(voltage: Measurement) {
-    return new Motor(
-      this.identifier,
-      this.freeSpeed.mul(voltage.div(nominalVoltage)),
-      this.stallTorque.mul(voltage.div(nominalVoltage)),
-      this.stallCurrent.mul(voltage.div(nominalVoltage)),
-      this.freeCurrent.mul(voltage.div(nominalVoltage)),
-      voltage,
-    );
+  public static fromName(name: string, quantity: number) {
+    return this.fromSpecs(ALL_MOTORS.find((m) => m.name === name)!, quantity);
   }
 
   toDict(): MotorDict {
     return {
       name: this.identifier,
-      quantity: 1,
+      quantity: this.quantity,
     };
   }
 
   public static fromDict(dict: MotorDict): Motor {
-    return Motor.fromName(dict.name).withQuantity(dict.quantity);
+    return Motor.fromName(dict.name, dict.quantity);
   }
 
   eq<M extends Model>(m: M): boolean {
