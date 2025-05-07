@@ -42,8 +42,8 @@ export default function Motors() {
   );
 
   const motor = useMemo(
-    () => Motor.fromName(selectedMotor).withVoltage(statorVoltage),
-    [selectedMotor, statorVoltage],
+    () => Motor.fromName(selectedMotor, 1),
+    [selectedMotor],
   );
 
   const motorCurve = useMemo(
@@ -76,7 +76,7 @@ export default function Motors() {
 
   const odeData = useMemo(() => {
     const data = solveMotorODE(
-      Motor.fromName(selectedMotor).withVoltage(statorVoltage),
+      Motor.fromName(selectedMotor, 1),
       statorVoltage,
       supplyVoltage,
       supplyLimit,

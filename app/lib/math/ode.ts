@@ -27,7 +27,6 @@ export default class ODESolver {
     ys[0] = this.y0;
 
     for (let i = 0; i < resolution; i++) {
-      console.log(i);
       ys[i + 1] = this.ode(ts[i], ys[i]).changeRates.map(
         (x, j) => ys[i][j] + x * h,
       ); //y_n+1 = y_n + dy/dx *h
@@ -190,6 +189,13 @@ export function solveMotorODE(
     supplyVoltage.div(statorVoltage),
   );
 
+  const voltageRatio = statorVoltage.div(supplyVoltage);
+
+  const stallCurrent = motor.stallCurrent.mul(voltageRatio);
+  const freeCurrent = motor.freeCurrent.mul(voltageRatio);
+  const freeSpeed = motor.freeSpeed.mul(voltageRatio);
+  const stallTorque = motor.stallTorque.mul(voltageRatio);
+
   const solver = new ODESolver(
     (t, y) => {
       const prevVel = new Measurement(y[0], 'rad/s');
@@ -220,6 +226,7 @@ export function solveMotorODE(
       )
         .div(J.add(inherentMotorInertia))
         .mul(new Measurement(1, 'rad'))
+        .mul(motor.quantity)
         .toBase();
 
       return {
@@ -241,7 +248,7 @@ export function solveMotorODE(
     },
     [
       0,
-      motor.stallCurrent.scalar,
+      stallCurrent.scalar,
       Measurement.min(statorLimit, supplyLimitInStatorAmps).to('A').scalar,
       0,
     ],
@@ -257,7 +264,7 @@ export function solveMotorODE(
     const currentDraw = shouldApplyLimit ? y[2] : y[1];
 
     const power = motor.kT
-      .mul(new Measurement(currentDraw, 'A').sub(motor.freeCurrent))
+      .mul(new Measurement(currentDraw, 'A').sub(freeCurrent))
       .mul(new Measurement(y[0], 'rad/s'))
       .removeRad()
       .to('W');
@@ -265,7 +272,7 @@ export function solveMotorODE(
     const losses = new Measurement(currentDraw, 'A')
       .mul(new Measurement(currentDraw, 'A'))
       .mul(motor.resistance)
-      .add(statorVoltage.mul(motor.freeCurrent));
+      .add(statorVoltage.mul(freeCurrent));
 
     results.push({
       time: new Measurement(rk4Result.ts[i], 's'),

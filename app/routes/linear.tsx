@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   Tooltip,
@@ -11,6 +12,7 @@ import {
 import IOLine from '~/components/recalc/blocks';
 import CalcHeading from '~/components/recalc/calcHeading';
 import { MeasurementInput } from '~/components/recalc/io/measurement';
+import { MotorInput } from '~/components/recalc/io/motor';
 import { ChartContainer } from '~/components/ui/chart';
 import { useQueryParams } from '~/lib/hooks';
 import type { LinearODEResult } from '~/lib/math/linear';
@@ -46,9 +48,11 @@ export default function Linear() {
     efficiency: number;
     statorLimit: Measurement;
     supplyLimit: Measurement;
+    supplyVoltage: Measurement;
+    statorVoltage: Measurement;
     angle: Measurement;
   }>({
-    motor: withDefault(MotorParam, Motor.fromName('Kraken X60 (FOC)')),
+    motor: withDefault(MotorParam, Motor.fromName('Kraken X60 (FOC)', 2)),
     travelDistance: withDefault(MeasurementParam, new Measurement(60, 'in')),
     spoolDiameter: withDefault(MeasurementParam, new Measurement(1, 'in')),
     load: withDefault(MeasurementParam, new Measurement(15, 'lb')),
@@ -56,6 +60,8 @@ export default function Linear() {
     efficiency: withDefault(NumberParam, 100),
     statorLimit: withDefault(MeasurementParam, new Measurement(60, 'A')),
     supplyLimit: withDefault(MeasurementParam, new Measurement(90, 'A')),
+    supplyVoltage: withDefault(MeasurementParam, new Measurement(12, 'V')),
+    statorVoltage: withDefault(MeasurementParam, new Measurement(6, 'V')),
     angle: withDefault(MeasurementParam, new Measurement(90, 'deg')),
   });
 
@@ -69,7 +75,10 @@ export default function Linear() {
   const [efficiency, setEfficiency] = useState(queryParams.efficiency);
   const [statorLimit, setStatorLimit] = useState(queryParams.statorLimit);
   const [supplyLimit, setSupplyLimit] = useState(queryParams.supplyLimit);
+  const [supplyVoltage, setSupplyVoltage] = useState(queryParams.supplyVoltage);
+  const [statorVoltage, setStatorVoltage] = useState(queryParams.statorVoltage);
   const [angle, setAngle] = useState(queryParams.angle);
+  const [loading, setLoading] = useState(false);
 
   const moi = useMemo(
     () =>
@@ -83,76 +92,15 @@ export default function Linear() {
     [ratio, load, spoolDiameter],
   );
 
-  // const results = useMemo(
-  //   () =>
-  //     generateODEData(
-  //       motor,
-  //       new Measurement(12, 'V'),
-  //       new Measurement(12, 'V'),
-  //       statorLimit,
-  //       supplyLimit,
-  //       travelDistance,
-  //       ratio,
-  //       spoolDiameter,
-  //       load,
-  //       moi,
-  //       efficiency,
-  //       angle,
-  //     ),
-  //   [
-  //     angle,
-  //     efficiency,
-  //     load,
-  //     moi,
-  //     motor,
-  //     ratio,
-  //     spoolDiameter,
-  //     statorLimit,
-  //     supplyLimit,
-  //     travelDistance,
-  //   ],
-  // );
-
   const [results, setResults] = useState<LinearODEResult[]>([]);
 
-  // useEffect(async () => {
-  //   await worker
-  //     .generateODEData(
-  //       motor.toDict(),
-  //       new Measurement(12, 'V').toDict(),
-  //       new Measurement(12, 'V').toDict(),
-  //       statorLimit.toDict(),
-  //       supplyLimit.toDict(),
-  //       travelDistance.toDict(),
-  //       ratio.toDict(),
-  //       spoolDiameter.toDict(),
-  //       load.toDict(),
-  //       moi.toDict(),
-  //       efficiency,
-  //       angle.toDict(),
-  //     )
-  //     .then((r) => {
-  //       setResults(r);
-  //     });
-  // }, [
-  //   angle,
-  //   efficiency,
-  //   load,
-  //   moi,
-  //   motor,
-  //   ratio,
-  //   spoolDiameter,
-  //   statorLimit,
-  //   supplyLimit,
-  //   travelDistance,
-  // ]);
-
   useEffect(() => {
+    setLoading(true);
     void worker
       .generateODEData(
         motor.toDict(),
-        new Measurement(12, 'V').toDict(),
-        new Measurement(12, 'V').toDict(),
+        statorVoltage.toDict(),
+        supplyVoltage.toDict(),
         statorLimit.toDict(),
         supplyLimit.toDict(),
         travelDistance.toDict(),
@@ -163,7 +111,8 @@ export default function Linear() {
         efficiency,
         angle.toDict(),
       )
-      .then(setResults);
+      .then(setResults)
+      .finally(() => setLoading(false));
   }, [
     angle,
     efficiency,
@@ -174,6 +123,8 @@ export default function Linear() {
     spoolDiameter,
     statorLimit,
     supplyLimit,
+    supplyVoltage,
+    statorVoltage,
     travelDistance,
   ]);
 
@@ -183,6 +134,10 @@ export default function Linear() {
       <div className="flex flex-row flex-wrap gap-x-4 px-1 [&>*]:flex-1">
         <div className="flex flex-col gap-x-4 gap-y-2">
           <IOLine>
+            <MotorInput stateHook={[motor, setMotor]} />
+          </IOLine>
+
+          <IOLine>
             <MeasurementInput
               stateHook={[travelDistance, setTravelDistance]}
               label="Travel Distance"
@@ -191,10 +146,6 @@ export default function Linear() {
               stateHook={[spoolDiameter, setSpoolDiameter]}
               label="Spool Diameter"
             />
-          </IOLine>
-
-          <IOLine>
-            <MeasurementInput stateHook={[load, setLoad]} label="Load" />
           </IOLine>
 
           <IOLine>
@@ -209,6 +160,18 @@ export default function Linear() {
           </IOLine>
 
           <IOLine>
+            <MeasurementInput
+              stateHook={[statorVoltage, setStatorVoltage]}
+              label="Stator Voltage"
+            />
+            <MeasurementInput
+              stateHook={[supplyVoltage, setSupplyVoltage]}
+              label="Supply Voltage"
+            />
+          </IOLine>
+
+          <IOLine>
+            <MeasurementInput stateHook={[load, setLoad]} label="Load" />
             <MeasurementInput stateHook={[angle, setAngle]} label="Angle" />
           </IOLine>
         </div>
@@ -224,13 +187,13 @@ export default function Linear() {
               dataKey="positionInches"
               dot={false}
               yAxisId="left"
-              stroke="red"
+              stroke="black"
             />
             <Line
               dataKey="velocityRPM"
               dot={false}
               yAxisId="right"
-              stroke="blue"
+              stroke="red"
             />
             <Line
               dataKey="statorDrawAmps"
@@ -250,6 +213,8 @@ export default function Linear() {
               yAxisId="left"
               stroke="blue"
             />
+
+            <Legend />
           </LineChart>
         </ChartContainer>
       </div>
