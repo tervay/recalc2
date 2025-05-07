@@ -1,4 +1,4 @@
-import Measurement from '~/lib/models/Measurement';
+import Measurement, { type MeasurementDict } from '~/lib/models/Measurement';
 import Motor, { nominalVoltage } from '~/lib/models/Motor';
 
 export type ODEFunction = (
@@ -126,6 +126,28 @@ export type StoppingInfo = {
   stepNumber: number;
 };
 
+export interface ODEResult {
+  positionRad: Measurement;
+  velocityRPM: Measurement;
+  statorDrawAmps: Measurement;
+  time: Measurement;
+  power: Measurement;
+  losses: Measurement;
+  efficiency: number;
+  torque: Measurement;
+}
+
+export interface ODEResultDicts {
+  positionRad: MeasurementDict;
+  velocityRPM: MeasurementDict;
+  statorDrawAmps: MeasurementDict;
+  time: MeasurementDict;
+  power: MeasurementDict;
+  losses: MeasurementDict;
+  efficiency: number;
+  torque: MeasurementDict;
+}
+
 export function solveMotorODE(
   motor: Motor,
   statorVoltage: Measurement,
@@ -136,7 +158,7 @@ export function solveMotorODE(
   J: Measurement,
   antiTorque: Measurement,
   efficiency: number,
-) {
+): ODEResult[] {
   const B = motor.b;
 
   const microHenryToHenry = (n: number) => n / 1e6;
@@ -227,5 +249,35 @@ export function solveMotorODE(
     duration,
   );
 
-  return solver.rk4(steps);
+  const rk4Result = solver.rk4(steps);
+  const results: ODEResult[] = [];
+
+  rk4Result.ys.forEach((y, i) => {
+    const shouldApplyLimit = y[1] >= y[2];
+    const currentDraw = shouldApplyLimit ? y[2] : y[1];
+
+    const power = motor.kT
+      .mul(new Measurement(currentDraw, 'A').sub(motor.freeCurrent))
+      .mul(new Measurement(y[0], 'rad/s'))
+      .removeRad()
+      .to('W');
+
+    const losses = new Measurement(currentDraw, 'A')
+      .mul(new Measurement(currentDraw, 'A'))
+      .mul(motor.resistance)
+      .add(statorVoltage.mul(motor.freeCurrent));
+
+    results.push({
+      time: new Measurement(rk4Result.ts[i], 's'),
+      positionRad: new Measurement(y[3], 'rad'),
+      velocityRPM: new Measurement(y[0], 'rad/s'),
+      statorDrawAmps: new Measurement(currentDraw, 'A'),
+      power: power,
+      losses: losses,
+      efficiency: power.div(power.add(losses)).baseScalar,
+      torque: motor.kT.mul(new Measurement(y[2], 'A')).to('N m'),
+    });
+  });
+
+  return results;
 }
