@@ -34,11 +34,16 @@ export default function Motors() {
   const [statorLimit, setStatorLimit] = useState(new Measurement(90, 'A'));
   const [supplyLimit, setSupplyLimit] = useState(new Measurement(60, 'A'));
   const [supplyVoltage, setSupplyVoltage] = useState(new Measurement(12, 'V'));
-  const [statorVoltage, setStatorVoltage] = useState(new Measurement(6, 'V'));
+  const [statorVoltage, setStatorVoltage] = useState(new Measurement(12, 'V'));
 
   const selectedMotorSpecs = useMemo(
     () => ALL_MOTORS.find((m) => m.name === selectedMotor)!,
     [selectedMotor],
+  );
+
+  const motor = useMemo(
+    () => Motor.fromName(selectedMotor).withVoltage(statorVoltage),
+    [selectedMotor, statorVoltage],
   );
 
   const motorCurve = useMemo(
@@ -76,22 +81,50 @@ export default function Motors() {
       supplyVoltage,
       supplyLimit,
       statorLimit,
-      (info) => info.stepNumber >= 200,
+      (info) => info.stepNumber >= 400,
       new Measurement(0.0001, 'kg m2'),
       new Measurement(0, 'N m'),
       100,
     );
 
-    const chartData = data.ys.map((y, i) => ({
-      time: data.ts[i],
-      velocity: new Measurement(y[0], 'rad/s').to('rpm').scalar,
-      current: y[1],
-      currLimit: y[2],
-      position: y[3],
-    }));
+    const chartData = data.ys.map((y, i) => {
+      const shouldApplyLimit = y[1] >= y[2];
+      const currentDraw = shouldApplyLimit ? y[2] : y[1];
+
+      const power = motor.kT
+        .mul(new Measurement(currentDraw, 'A').sub(motor.freeCurrent))
+        .mul(new Measurement(y[0], 'rad/s'))
+        .removeRad()
+        .to('W');
+
+      const losses = new Measurement(currentDraw, 'A')
+        .mul(new Measurement(currentDraw, 'A'))
+        .mul(motor.resistance)
+        .add(statorVoltage.mul(motor.freeCurrent));
+
+      return {
+        time: data.ts[i],
+        velocity: new Measurement(y[0], 'rad/s').to('rpm').scalar,
+        current: y[1],
+        currLimit: y[2],
+        position: y[3],
+        torque: motor.kT.mul(new Measurement(y[2], 'A')).to('N m').scalar,
+        power: power.scalar,
+        efficiency: power.div(power.add(losses)).baseScalar,
+        losses: losses.to('W').scalar,
+        currentDraw,
+      };
+    });
 
     return chartData;
-  }, [selectedMotor, supplyLimit, supplyVoltage, statorVoltage, statorLimit]);
+  }, [
+    selectedMotor,
+    supplyLimit,
+    supplyVoltage,
+    statorVoltage,
+    statorLimit,
+    motor,
+  ]);
 
   return (
     <div>
@@ -168,6 +201,21 @@ export default function Motors() {
             <Tooltip />
 
             <Line dataKey="velocity" dot={false} yAxisId="left" stroke="red" />
+            <Line dataKey="power" dot={false} yAxisId="left" stroke="green" />
+            <Line dataKey="torque" dot={false} yAxisId="right" stroke="blue" />
+            <Line
+              dataKey="currentDraw"
+              dot={false}
+              yAxisId="right"
+              stroke="yellow"
+            />
+            {/* <Line
+              dataKey="efficiency"
+              dot={false}
+              yAxisId="right"
+              stroke="blue"
+            />
+            <Line dataKey="losses" dot={false} yAxisId="left" stroke="purple" /> */}
           </LineChart>
         </ChartContainer>
       </div>
