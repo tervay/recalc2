@@ -1,6 +1,9 @@
 import queryString from 'query-string';
 
 import Measurement from '~/lib/models/Measurement';
+import Motor from '~/lib/models/Motor';
+import type { RatioDict } from '~/lib/models/Ratio';
+import Ratio from '~/lib/models/Ratio';
 
 export interface DefaultAndQueryParamProvider<T> {
   queryParam: QueryParam<T>;
@@ -50,5 +53,18 @@ export const MeasurementParam: QueryParam<Measurement> = {
     }
 
     throw new Error('Invalid measurement');
+  },
+};
+
+export const MotorParam: QueryParam<Motor> = {
+  encode: (value) => value.identifier,
+  decode: (value) => Motor.fromName(value),
+};
+
+export const RatioParam: QueryParam<Ratio> = {
+  encode: (value) => queryString.stringify(value.toDict()),
+  decode: (value) => {
+    const parsed = queryString.parse(value);
+    return Ratio.fromDict(parsed as unknown as RatioDict);
   },
 };

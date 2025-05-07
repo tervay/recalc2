@@ -87,44 +87,14 @@ export default function Motors() {
       100,
     );
 
-    const chartData = data.ys.map((y, i) => {
-      const shouldApplyLimit = y[1] >= y[2];
-      const currentDraw = shouldApplyLimit ? y[2] : y[1];
-
-      const power = motor.kT
-        .mul(new Measurement(currentDraw, 'A').sub(motor.freeCurrent))
-        .mul(new Measurement(y[0], 'rad/s'))
-        .removeRad()
-        .to('W');
-
-      const losses = new Measurement(currentDraw, 'A')
-        .mul(new Measurement(currentDraw, 'A'))
-        .mul(motor.resistance)
-        .add(statorVoltage.mul(motor.freeCurrent));
-
-      return {
-        time: data.ts[i],
-        velocity: new Measurement(y[0], 'rad/s').to('rpm').scalar,
-        current: y[1],
-        currLimit: y[2],
-        position: y[3],
-        torque: motor.kT.mul(new Measurement(y[2], 'A')).to('N m').scalar,
-        power: power.scalar,
-        efficiency: power.div(power.add(losses)).baseScalar,
-        losses: losses.to('W').scalar,
-        currentDraw,
-      };
-    });
-
-    return chartData;
-  }, [
-    selectedMotor,
-    supplyLimit,
-    supplyVoltage,
-    statorVoltage,
-    statorLimit,
-    motor,
-  ]);
+    return data.map((d) => ({
+      time: d.time.to('s').scalar,
+      velocity: d.velocityRPM.to('rpm').scalar,
+      currentDraw: d.statorDrawAmps.to('A').scalar,
+      torque: d.torque.to('N m').scalar,
+      power: d.power.to('W').scalar,
+    }));
+  }, [selectedMotor, supplyLimit, supplyVoltage, statorVoltage, statorLimit]);
 
   return (
     <div>

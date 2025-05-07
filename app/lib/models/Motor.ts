@@ -118,6 +118,11 @@ export function generateMotorCurves(
   return curve;
 }
 
+export interface MotorDict extends Record<string, unknown> {
+  name: string;
+  quantity: number;
+}
+
 export default class Motor extends Model {
   public readonly kV: Measurement;
   public readonly kT: Measurement;
@@ -202,8 +207,15 @@ export default class Motor extends Model {
     );
   }
 
-  toDict(): Record<string, unknown> {
-    throw new Error('Not implemented');
+  toDict(): MotorDict {
+    return {
+      name: this.identifier,
+      quantity: 1,
+    };
+  }
+
+  public static fromDict(dict: MotorDict): Motor {
+    return Motor.fromName(dict.name).withQuantity(dict.quantity);
   }
 
   eq<M extends Model>(m: M): boolean {
