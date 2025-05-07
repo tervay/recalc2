@@ -1,4 +1,8 @@
 import Measurement from '~/lib/models/Measurement';
+import Model from '~/lib/models/Model';
+
+export const nominalVoltage = new Measurement(12, 'V');
+export const highCurrentLimit = new Measurement(1000, 'A');
 
 interface MotorSpecs {
   voltage: Measurement;
@@ -50,6 +54,10 @@ export function generateMotorCurves(
   const curve: MotorCurveSnapshot[] = [];
   let currentSpeed = new Measurement(0, 'rpm');
 
+  if ([specs.voltage, statorLimit, supplyLimit].some((s) => s.scalar === 0)) {
+    return [];
+  }
+
   while (currentSpeed.lte(specs.freeSpeed)) {
     const speedPercentage = currentSpeed.div(specs.freeSpeed);
     const oneMinusSpeedPercentage = new Measurement(1).sub(speedPercentage);
@@ -58,16 +66,18 @@ export function generateMotorCurves(
 
     // max stator
     const maxPowerIn = specs.voltage.mul(supplyLimit);
-    const a = specs.resistance.to('Ohm');
-    const b = speedPercentage.mul(specs.voltage);
+    const resistance = specs.resistance.to('Ohm');
+    const voltagePercentage = speedPercentage.mul(specs.voltage);
     const c = maxPowerIn.negate().add(specs.voltage.mul(freeCurrent));
-    const discriminant = b.mul(b).sub(a.mul(c).mul(4));
+    const discriminant = voltagePercentage
+      .mul(voltagePercentage)
+      .sub(resistance.mul(c).mul(4));
     const sqrtDiscriminant = new Measurement(
       Math.sqrt(discriminant.to('V2').scalar),
       'V',
     );
-    const numerator = b.negate().add(sqrtDiscriminant);
-    const denominator = a.mul(2);
+    const numerator = voltagePercentage.negate().add(sqrtDiscriminant);
+    const denominator = resistance.mul(2);
     const maxStator = numerator.div(denominator).abs();
     // end max stator
 
@@ -106,6 +116,99 @@ export function generateMotorCurves(
   }
 
   return curve;
+}
+
+export default class Motor extends Model {
+  public readonly kV: Measurement;
+  public readonly kT: Measurement;
+  public readonly kM: Measurement;
+  // public readonly maxPower: Measurement;
+  public readonly resistance: Measurement;
+  public readonly b: Measurement;
+
+  constructor(
+    identifier: string,
+    public readonly freeSpeed: Measurement,
+    public readonly stallTorque: Measurement,
+    public readonly stallCurrent: Measurement,
+    public readonly freeCurrent: Measurement,
+    public readonly voltage: Measurement,
+  ) {
+    super(identifier);
+
+    this.resistance = this.voltage.div(this.stallCurrent);
+
+    this.kV = this.freeSpeed.div(
+      this.voltage.sub(this.resistance.mul(this.freeCurrent)),
+    );
+    this.kT = this.stallTorque.div(this.stallCurrent);
+    this.kM = new Measurement(
+      this.kT.scalar / Math.sqrt(this.resistance.scalar),
+    );
+    this.b = this.kT.mul(this.freeCurrent).div(this.freeSpeed);
+
+    // this.maxPower = new MotorRules(this, highCurrentLimit, {
+    //   voltage: nominalVoltage,
+    //   rpm: this.freeSpeed.div(2),
+    //   torque: this.stallTorque.div(2),
+    // }).solve().power;
+  }
+
+  public static fromSpecs(specs: MotorSpecs) {
+    return new Motor(
+      specs.name,
+      specs.freeSpeed,
+      specs.stallTorque,
+      specs.stallCurrent,
+      specs.freeCurrent,
+      specs.voltage,
+    );
+  }
+
+  public static fromName(name: string) {
+    return this.fromSpecs(ALL_MOTORS.find((m) => m.name === name)!);
+  }
+
+  public withReduction(ratio: number) {
+    return new Motor(
+      this.identifier,
+      this.freeSpeed.div(ratio),
+      this.stallTorque.mul(ratio),
+      this.stallCurrent,
+      this.freeCurrent,
+      this.voltage,
+    );
+  }
+
+  public withQuantity(quantity: number) {
+    return new Motor(
+      this.identifier,
+      this.freeSpeed,
+      this.stallTorque.mul(quantity),
+      this.stallCurrent.mul(quantity),
+      this.freeCurrent.mul(quantity),
+      this.voltage,
+    );
+  }
+
+  public withVoltage(voltage: Measurement) {
+    return new Motor(
+      this.identifier,
+      this.freeSpeed.mul(voltage.div(nominalVoltage)),
+      this.stallTorque.mul(voltage.div(nominalVoltage)),
+      this.stallCurrent.mul(voltage.div(nominalVoltage)),
+      this.freeCurrent.mul(voltage.div(nominalVoltage)),
+      voltage,
+    );
+  }
+
+  toDict(): Record<string, unknown> {
+    throw new Error('Not implemented');
+  }
+
+  eq<M extends Model>(m: M): boolean {
+    return m instanceof Motor && m.identifier === this.identifier;
+  }
 }
 
 export const ALL_MOTORS: MotorSpecs[] = [
