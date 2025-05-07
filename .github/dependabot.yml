@@ -35,6 +35,7 @@ updates:
         patterns:
           - 'vite'
           - 'vite-tsconfig-paths'
+          - 'vite-plugin-comlink'
           - '@tailwindcss/vite'
       radix:
         patterns:
