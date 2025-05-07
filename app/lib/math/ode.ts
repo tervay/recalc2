@@ -162,7 +162,7 @@ export function solveMotorODE(
   const inherentMotorInertia = new Measurement(0.00005822569, 'kg m2');
 
   const duration = 30;
-  const numStepsPerSec = 800;
+  const numStepsPerSec = 1000;
   const steps = duration * numStepsPerSec;
   const supplyLimitInStatorAmps = supplyLimit.mul(
     supplyVoltage.div(statorVoltage),
