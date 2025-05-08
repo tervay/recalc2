@@ -1,13 +1,8 @@
-/**
- * A exponential curve-shaped velocity profile.
- *
- * While this class can be used for a profiled movement from start to finish, the intended usage
- * is to filter a reference's dynamics based on state-space model dynamics.
- */
+import { calculateLoadedBatteryVoltage } from '~/lib/math/batterySim';
 import Measurement from '~/lib/models/Measurement';
 import type Motor from '~/lib/models/Motor';
 import type Ratio from '~/lib/models/Ratio';
-import { type CompleteMotorState, MotorRules } from '~/lib/rules';
+import { MotorRules } from '~/lib/rules';
 
 interface ProfileTiming {
   inflectionTime: number;
@@ -119,7 +114,7 @@ export class ExponentialProfile {
   ): State {
     const u = input;
 
-    if (this.areStatesEqual(current, goal)) {
+    if (ExponentialProfile.areStatesEqual(current, goal)) {
       return current;
     }
 
@@ -335,7 +330,7 @@ export class ExponentialProfile {
     return (a && !d) || (b && !c) || (!c && !d);
   }
 
-  private areStatesEqual(state1: State, state2: State): boolean {
+  static areStatesEqual(state1: State, state2: State): boolean {
     return (
       state1.position === state2.position && state1.velocity === state2.velocity
     );
@@ -352,6 +347,8 @@ function simProfile(
   statorVoltage: Measurement,
   spoolDiameter: Measurement,
   ratio: Ratio,
+  supplyVoltage: Measurement,
+  batteryResistance: Measurement,
 ) {
   const results: (State & {
     time: number;
@@ -362,6 +359,7 @@ function simProfile(
     power: number;
     efficiency: number;
     losses: number;
+    batteryVoltage: number;
   })[] = [
     {
       ...current,
@@ -373,18 +371,29 @@ function simProfile(
       power: 0,
       efficiency: 0,
       losses: 0,
+      batteryVoltage: supplyVoltage.to('V').scalar,
     },
   ];
 
   while (current.position < goal.position) {
     current = profile.calculate(dt, current, goal);
 
+    if (
+      results.length == 1 &&
+      ExponentialProfile.areStatesEqual(current, goal)
+    ) {
+      break;
+    }
+
     const motorState = new MotorRules(motor, currentLimit, {
-      rpm: new Measurement(current.velocity, 'in/s')
-        .radializeLinearPosition(
-          spoolDiameter.mul(Math.PI).div(ratio.asNumber()),
-        )
-        .to('rpm'),
+      rpm:
+        ratio.asNumber() === 0
+          ? new Measurement(0, 'rpm')
+          : new Measurement(current.velocity, 'in/s')
+              .radializeLinearPosition(
+                spoolDiameter.mul(Math.PI).div(ratio.asNumber()),
+              )
+              .to('rpm'),
       voltage: statorVoltage,
     }).solve();
 
@@ -398,6 +407,11 @@ function simProfile(
       power: motorState.power.to('W').scalar,
       efficiency: motorState.efficiency.baseScalar * 100,
       losses: motorState.losses.to('W').scalar,
+      batteryVoltage: calculateLoadedBatteryVoltage(
+        supplyVoltage,
+        batteryResistance,
+        [motorState.current],
+      ).to('V').scalar,
     });
   }
 

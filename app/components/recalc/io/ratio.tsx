@@ -9,41 +9,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import Motor, { ALL_MOTORS } from '~/lib/models/Motor';
+import Ratio, { RatioType } from '~/lib/models/Ratio';
 import type { HasStateHook } from '~/lib/types/common';
 
-export function MotorInput({ stateHook }: HasStateHook<Motor>) {
-  const [motor, setMotor] = stateHook;
-  const [name, setName] = useState(motor.identifier);
-  const [quantity, setQuantity] = useState(motor.quantity);
+export function RatioInput({ stateHook }: HasStateHook<Ratio>) {
+  const [ratio, setRatio] = stateHook;
+  const [magnitude, setMagnitude] = useState(ratio.magnitude);
+  const [type, setType] = useState(ratio.ratioType);
 
   useEffect(() => {
-    setMotor(Motor.fromName(name, quantity));
-  }, [name, quantity, setMotor]);
+    setRatio(new Ratio(magnitude, type));
+  }, [magnitude, type, setRatio]);
 
   return (
     <div className="flex flex-row">
       <Label htmlFor="measurement" className="mr-2 text-nowrap">
-        Motor
+        Ratio
       </Label>
       <div className="flex w-full flex-row">
         <Input
           type="number"
           id="measurement"
-          value={quantity}
+          value={magnitude}
           onChange={(e) => {
-            setQuantity(Number(e.target.value));
+            setMagnitude(Number(e.target.value));
           }}
           className="rounded-r-none"
         />
-        <Select value={name} onValueChange={setName}>
+        <Select
+          value={type}
+          onValueChange={(value) => {
+            setType(value as RatioType);
+          }}
+        >
           <SelectTrigger className="rounded-l-none">
             <SelectValue placeholder="Theme" />
           </SelectTrigger>
           <SelectContent>
-            {ALL_MOTORS.map((m) => (
-              <SelectItem key={m.name} value={m.name}>
-                {m.name}
+            {Object.values(RatioType).map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
               </SelectItem>
             ))}
           </SelectContent>
