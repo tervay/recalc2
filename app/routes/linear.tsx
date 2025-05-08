@@ -18,6 +18,7 @@ import {
 import { MotorInput } from '~/components/recalc/io/motor';
 import { ChartContainer } from '~/components/ui/chart';
 import { useQueryParams } from '~/lib/hooks';
+import { supplyLimitToStatorLimit } from '~/lib/math/common';
 import {
   ExponentialProfile,
   createState,
@@ -88,55 +89,26 @@ export default function Linear() {
   const [supplyVoltage, setSupplyVoltage] = useState(queryParams.supplyVoltage);
   const [statorVoltage, setStatorVoltage] = useState(queryParams.statorVoltage);
   const [angle, setAngle] = useState(queryParams.angle);
-  const [loading, setLoading] = useState(false);
 
-  const moi = useMemo(
+  const supplyLimitInStatorTerms = useMemo(
     () =>
-      ratio.asNumber() === 0
-        ? new Measurement(0, 'kg m2')
-        : load
-            .mul(spoolDiameter.div(2))
-            .mul(spoolDiameter.div(2))
-            .div(ratio.asNumber())
-            .div(ratio.asNumber()),
-    [ratio, load, spoolDiameter],
+      supplyLimitToStatorLimit({
+        supplyLimit,
+        supplyVoltage,
+        statorVoltage,
+      }),
+    [supplyLimit, supplyVoltage, statorVoltage],
   );
 
-  const [results, setResults] = useState<LinearODEResult[]>([]);
+  const isUsingStatorLimit = useMemo(
+    () => supplyLimitInStatorTerms.gt(statorLimit),
+    [supplyLimitInStatorTerms, statorLimit],
+  );
 
-  useEffect(() => {
-    setLoading(true);
-    void worker
-      .generateODEData(
-        motor.toDict(),
-        statorVoltage.toDict(),
-        supplyVoltage.toDict(),
-        statorLimit.toDict(),
-        supplyLimit.toDict(),
-        travelDistance.toDict(),
-        ratio.toDict(),
-        spoolDiameter.toDict(),
-        load.toDict(),
-        moi.toDict(),
-        efficiency,
-        angle.toDict(),
-      )
-      .then(setResults)
-      .finally(() => setLoading(false));
-  }, [
-    angle,
-    efficiency,
-    load,
-    moi,
-    motor,
-    ratio,
-    spoolDiameter,
-    statorLimit,
-    supplyLimit,
-    supplyVoltage,
-    statorVoltage,
-    travelDistance,
-  ]);
+  const limitingCurrentLimit = useMemo(
+    () => (isUsingStatorLimit ? statorLimit : supplyLimitInStatorTerms),
+    [isUsingStatorLimit, statorLimit, supplyLimitInStatorTerms],
+  );
 
   const kV = useMemo(
     () =>
@@ -148,7 +120,7 @@ export default function Linear() {
     () =>
       calculateKa(
         motor.kT
-          .mul(statorLimit)
+          .mul(limitingCurrentLimit)
           .mul(motor.quantity)
           .mul(ratio.asNumber())
           .mul(efficiency / 100),
@@ -157,7 +129,7 @@ export default function Linear() {
       ),
     [
       motor.kT,
-      statorLimit,
+      limitingCurrentLimit,
       motor.quantity,
       efficiency,
       ratio,
@@ -176,7 +148,7 @@ export default function Linear() {
           .mul(efficiency / 100),
         spoolDiameter.div(2),
         load,
-      ),
+      ).mul(Math.sin(angle.to('rad').scalar)),
     [
       motor.kT,
       statorLimit,
@@ -185,6 +157,7 @@ export default function Linear() {
       efficiency,
       spoolDiameter,
       load,
+      angle,
     ],
   );
 
@@ -205,16 +178,23 @@ export default function Linear() {
         profile,
         createState(0, 0),
         createState(travelDistance.to('in').scalar, 0),
-        0.01,
+        0.005,
+        motor,
+        limitingCurrentLimit,
+        statorVoltage,
+        spoolDiameter,
+        ratio,
       ),
-    [profile, travelDistance],
+    [
+      profile,
+      travelDistance,
+      motor,
+      limitingCurrentLimit,
+      statorVoltage,
+      spoolDiameter,
+      ratio,
+    ],
   );
-
-  useEffect(() => {
-    for (const state of simulatedStates) {
-      console.log(state);
-    }
-  }, [simulatedStates]);
 
   return (
     <div>
@@ -275,6 +255,7 @@ export default function Linear() {
             <XAxis dataKey="time" />
             <YAxis yAxisId="left" />
             <YAxis yAxisId="right" orientation="right" />
+            <YAxis yAxisId="right2" orientation="right" />
             <Tooltip />
 
             <Line
@@ -285,7 +266,24 @@ export default function Linear() {
             />
 
             <Line dataKey="velocity" yAxisId="right" stroke="red" dot={false} />
-
+            <Line
+              dataKey="current"
+              yAxisId="left"
+              stroke="goldenrod"
+              dot={false}
+            />
+            <Line dataKey="voltage" yAxisId="left" stroke="blue" dot={false} />
+            {/* <Line dataKey="rpm" yAxisId="right" stroke="green" dot={false} /> */}
+            <Line dataKey="rpm" yAxisId="right2" stroke="green" dot={false} />
+            <Line dataKey="torque" yAxisId="left" stroke="purple" dot={false} />
+            <Line dataKey="power" yAxisId="right" stroke="grey" dot={false} />
+            <Line
+              dataKey="efficiency"
+              yAxisId="left"
+              stroke="green"
+              dot={false}
+            />
+            <Line dataKey="losses" yAxisId="left" stroke="red" dot={false} />
             {/* <Line
               dataKey="positionInches"
               dot={false}
