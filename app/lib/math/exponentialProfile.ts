@@ -4,6 +4,10 @@
  * While this class can be used for a profiled movement from start to finish, the intended usage
  * is to filter a reference's dynamics based on state-space model dynamics.
  */
+import Measurement from '~/lib/models/Measurement';
+import type Motor from '~/lib/models/Motor';
+import type Ratio from '~/lib/models/Ratio';
+import { type CompleteMotorState, MotorRules } from '~/lib/rules';
 
 interface ProfileTiming {
   inflectionTime: number;
@@ -343,14 +347,57 @@ function simProfile(
   current: State,
   goal: State,
   dt: number,
+  motor: Motor,
+  currentLimit: Measurement,
+  statorVoltage: Measurement,
+  spoolDiameter: Measurement,
+  ratio: Ratio,
 ) {
-  const results: (State & { time: number })[] = [{ ...current, time: 0 }];
+  const results: (State & {
+    time: number;
+    rpm: number;
+    voltage: number;
+    current: number;
+    torque: number;
+    power: number;
+    efficiency: number;
+    losses: number;
+  })[] = [
+    {
+      ...current,
+      time: 0,
+      rpm: current.velocity,
+      voltage: statorVoltage.to('V').scalar,
+      current: 0,
+      torque: 0,
+      power: 0,
+      efficiency: 0,
+      losses: 0,
+    },
+  ];
 
   while (current.position < goal.position) {
     current = profile.calculate(dt, current, goal);
+
+    const motorState = new MotorRules(motor, currentLimit, {
+      rpm: new Measurement(current.velocity, 'in/s')
+        .radializeLinearPosition(
+          spoolDiameter.mul(Math.PI).div(ratio.asNumber()),
+        )
+        .to('rpm'),
+      voltage: statorVoltage,
+    }).solve();
+
     results.push({
       ...current,
       time: (results.length + 1) * dt,
+      rpm: motorState.rpm.to('rpm').scalar,
+      voltage: motorState.voltage.to('V').scalar,
+      current: motorState.current.to('A').scalar,
+      torque: motorState.torque.to('N m').scalar,
+      power: motorState.power.to('W').scalar,
+      efficiency: motorState.efficiency.baseScalar * 100,
+      losses: motorState.losses.to('W').scalar,
     });
   }
 
