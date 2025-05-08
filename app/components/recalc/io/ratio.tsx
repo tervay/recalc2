@@ -17,9 +17,19 @@ export function RatioInput({ stateHook }: HasStateHook<Ratio>) {
   const [magnitude, setMagnitude] = useState(ratio.magnitude);
   const [type, setType] = useState(ratio.ratioType);
 
+  const [proxyMagnitude, setProxyMagnitude] = useState(magnitude.toString());
+
   useEffect(() => {
     setRatio(new Ratio(magnitude, type));
   }, [magnitude, type, setRatio]);
+
+  useEffect(() => {
+    if (proxyMagnitude !== '' && proxyMagnitude !== '0') {
+      setMagnitude(Number(proxyMagnitude));
+    } else {
+      setMagnitude(0);
+    }
+  }, [proxyMagnitude, setMagnitude]);
 
   return (
     <div className="flex flex-row">
@@ -30,9 +40,13 @@ export function RatioInput({ stateHook }: HasStateHook<Ratio>) {
         <Input
           type="number"
           id="measurement"
-          value={magnitude}
+          value={proxyMagnitude}
           onChange={(e) => {
-            setMagnitude(Number(e.target.value));
+            if (e.target.value !== '') {
+              setProxyMagnitude(e.target.value);
+            } else {
+              setProxyMagnitude('');
+            }
           }}
           className="rounded-r-none"
         />
