@@ -11,10 +11,20 @@ import {
 
 import IOLine from '~/components/recalc/blocks';
 import CalcHeading from '~/components/recalc/calcHeading';
-import { MeasurementInput } from '~/components/recalc/io/measurement';
+import {
+  MeasurementInput,
+  MeasurementOutput,
+} from '~/components/recalc/io/measurement';
 import { MotorInput } from '~/components/recalc/io/motor';
 import { ChartContainer } from '~/components/ui/chart';
 import { useQueryParams } from '~/lib/hooks';
+import {
+  ExponentialProfile,
+  createState,
+  fromCharacteristics,
+  simProfile,
+} from '~/lib/math/exponentialProfile';
+import { calculateKa, calculateKg, calculateKv } from '~/lib/math/kVkA';
 import type { LinearODEResult } from '~/lib/math/linear';
 import Measurement from '~/lib/models/Measurement';
 import Motor from '~/lib/models/Motor';
@@ -128,6 +138,84 @@ export default function Linear() {
     travelDistance,
   ]);
 
+  const kV = useMemo(
+    () =>
+      calculateKv(motor.freeSpeed.div(ratio.asNumber()), spoolDiameter.div(2)),
+    [motor, ratio, spoolDiameter],
+  );
+
+  const kA = useMemo(
+    () =>
+      calculateKa(
+        motor.kT
+          .mul(statorLimit)
+          .mul(motor.quantity)
+          .mul(ratio.asNumber())
+          .mul(efficiency / 100),
+        spoolDiameter.div(2),
+        load,
+      ),
+    [
+      motor.kT,
+      statorLimit,
+      motor.quantity,
+      efficiency,
+      ratio,
+      spoolDiameter,
+      load,
+    ],
+  );
+
+  const kG = useMemo(
+    () =>
+      calculateKg(
+        motor.kT
+          .mul(statorLimit)
+          .mul(motor.quantity)
+          .mul(ratio.asNumber())
+          .mul(efficiency / 100),
+        spoolDiameter.div(2),
+        load,
+      ),
+    [
+      motor.kT,
+      statorLimit,
+      motor.quantity,
+      ratio,
+      efficiency,
+      spoolDiameter,
+      load,
+    ],
+  );
+
+  const profile = useMemo(() => {
+    const constraints = fromCharacteristics(
+      statorVoltage.sub(kG).to('V').scalar,
+      kV.to('V*s/in').scalar,
+      kA.to('V*s^2/in').scalar,
+      // 2.5629,
+      // 0.43277,
+    );
+    return new ExponentialProfile(constraints);
+  }, [kV, kA, kG, statorVoltage]);
+
+  const simulatedStates = useMemo(
+    () =>
+      simProfile(
+        profile,
+        createState(0, 0),
+        createState(travelDistance.to('in').scalar, 0),
+        0.01,
+      ),
+    [profile, travelDistance],
+  );
+
+  useEffect(() => {
+    for (const state of simulatedStates) {
+      console.log(state);
+    }
+  }, [simulatedStates]);
+
   return (
     <div>
       <CalcHeading title="Linear Motion Calculator" />
@@ -174,16 +262,31 @@ export default function Linear() {
             <MeasurementInput stateHook={[load, setLoad]} label="Load" />
             <MeasurementInput stateHook={[angle, setAngle]} label="Angle" />
           </IOLine>
+
+          <IOLine>
+            <MeasurementOutput state={kV} label="kV" defaultUnit="V*s/m" />
+            <MeasurementOutput state={kA} label="kA" defaultUnit="V*s^2/m" />
+            <MeasurementOutput state={kG} label="kG" defaultUnit="V" />
+          </IOLine>
         </div>
         <ChartContainer config={{}} className="min-h-[200px] w-full">
-          <LineChart data={results}>
+          <LineChart data={simulatedStates}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="timeSeconds" />
+            <XAxis dataKey="time" />
             <YAxis yAxisId="left" />
             <YAxis yAxisId="right" orientation="right" />
             <Tooltip />
 
             <Line
+              dataKey="position"
+              yAxisId="left"
+              stroke="black"
+              dot={false}
+            />
+
+            <Line dataKey="velocity" yAxisId="right" stroke="red" dot={false} />
+
+            {/* <Line
               dataKey="positionInches"
               dot={false}
               yAxisId="left"
@@ -212,7 +315,7 @@ export default function Linear() {
               dot={false}
               yAxisId="left"
               stroke="blue"
-            />
+            /> */}
 
             <Legend />
           </LineChart>
