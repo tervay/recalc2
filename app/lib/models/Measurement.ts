@@ -77,7 +77,7 @@ export default class Measurement extends Model {
       case 'potential':
         return ['V'];
       case 'resistance':
-        return ['ohm'];
+        return ['Ohm'];
       case 'energy':
         return ['J'];
       case 'force':
