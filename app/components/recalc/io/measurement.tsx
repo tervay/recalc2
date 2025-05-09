@@ -9,13 +9,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
 import Measurement from '~/lib/models/Measurement';
 import type { HasStateHook } from '~/lib/types/common';
 
 export function MeasurementInput({
   stateHook,
   label,
-}: HasStateHook<Measurement> & { label: string }) {
+  tooltip,
+}: HasStateHook<Measurement> & { label: string; tooltip?: string }) {
   const [meas, setMeas] = stateHook;
 
   const [scalar, setScalar] = useState(meas.scalar);
@@ -26,19 +33,46 @@ export function MeasurementInput({
     setMeas(new Measurement(scalar, unit));
   }, [scalar, unit, setMeas]);
 
+  const [proxyValue, setProxyValue] = useState(scalar.toString());
+
+  useEffect(() => {
+    if (proxyValue !== '' && proxyValue !== '0') {
+      setScalar(Number(proxyValue));
+    } else {
+      setScalar(0);
+    }
+  }, [proxyValue, setScalar]);
+
   return (
     <div className="flex flex-row">
-      <Label htmlFor="measurement" className="mr-2 text-nowrap">
-        {label}
-      </Label>
+      {tooltip === undefined ? (
+        <Label htmlFor="measurement" className="mr-2 text-nowrap">
+          {label}
+        </Label>
+      ) : (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Label htmlFor="measurement" className="mr-2 text-nowrap">
+                {label}
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent>{tooltip}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       <div className="flex w-full flex-row">
         <Input
           type="number"
           id="measurement"
           placeholder={label}
-          value={scalar}
+          value={proxyValue}
           onChange={(e) => {
-            setScalar(Number(e.target.value));
+            if (e.target.value !== '') {
+              setProxyValue(e.target.value);
+            } else {
+              setProxyValue('');
+            }
           }}
           className="rounded-r-none"
         />

@@ -14,6 +14,7 @@ import type { DataKey } from 'recharts/types/util/types';
 
 import IOLine from '~/components/recalc/blocks';
 import CalcHeading from '~/components/recalc/calcHeading';
+import BooleanInput from '~/components/recalc/io/boolean';
 import {
   MeasurementInput,
   MeasurementOutput,
@@ -37,6 +38,7 @@ import Motor from '~/lib/models/Motor';
 import Ratio, { RatioType } from '~/lib/models/Ratio';
 import { MotorRules } from '~/lib/rules';
 import {
+  BooleanParam,
   MeasurementParam,
   MotorParam,
   NumberParam,
@@ -46,8 +48,8 @@ import {
 
 export function meta() {
   return [
-    { title: 'Chain Calculator' },
-    { name: 'description', content: 'Chain Calculator' },
+    { title: 'Linear Motion Calculator' },
+    { name: 'description', content: 'Linear Motion Calculator' },
   ];
 }
 
@@ -65,6 +67,7 @@ export default function Linear() {
     statorVoltage: Measurement;
     angle: Measurement;
     batteryResistance: Measurement;
+    cascade: boolean;
   }>({
     motor: withDefault(MotorParam, Motor.fromName('Kraken X60 (FOC)', 2)),
     travelDistance: withDefault(MeasurementParam, new Measurement(60, 'in')),
@@ -74,13 +77,14 @@ export default function Linear() {
     efficiency: withDefault(NumberParam, 100),
     statorLimit: withDefault(MeasurementParam, new Measurement(60, 'A')),
     supplyLimit: withDefault(MeasurementParam, new Measurement(90, 'A')),
-    supplyVoltage: withDefault(MeasurementParam, new Measurement(12, 'V')),
+    supplyVoltage: withDefault(MeasurementParam, new Measurement(12.6, 'V')),
     statorVoltage: withDefault(MeasurementParam, new Measurement(10, 'V')),
     angle: withDefault(MeasurementParam, new Measurement(90, 'deg')),
     batteryResistance: withDefault(
       MeasurementParam,
       new Measurement(0.015, 'Ohm'),
     ),
+    cascade: withDefault(BooleanParam, false),
   });
 
   const [motor, setMotor] = useState(queryParams.motor);
@@ -99,10 +103,10 @@ export default function Linear() {
   const [batteryResistance, setBatteryResistance] = useState(
     queryParams.batteryResistance,
   );
+  const [cascade, setCascade] = useState(queryParams.cascade);
   const [hiddenChartLines, setHiddenChartLines] = useState<DataKey<unknown>[]>(
     [],
   );
-
   const supplyLimitInStatorTerms = useMemo(
     () =>
       supplyLimitToStatorLimit({
@@ -266,6 +270,11 @@ export default function Linear() {
     [simulatedStates],
   );
 
+  const batterySag = useMemo(
+    () => supplyVoltage.sub(minimumBatteryVoltage),
+    [supplyVoltage, minimumBatteryVoltage],
+  );
+
   return (
     <div>
       <CalcHeading title="Linear Motion Calculator" />
@@ -280,21 +289,31 @@ export default function Linear() {
             <NumberInput
               stateHook={[efficiency, setEfficiency]}
               label="Efficiency %"
+              tooltip="The efficiency of the motor and gearbox. Typically ~92-97% per stage."
             />
             <MeasurementInput
               stateHook={[spoolDiameter, setSpoolDiameter]}
               label="Spool Diameter"
+              tooltip="The diameter of the spool or wheel that the elevator rigging is wrapped around. If a pulley or sprocket, use the pitch diameter."
             />
+            <BooleanInput stateHook={[cascade, setCascade]} label="Cascade Mechanism" />
+          </IOLine>
+
+          <IOLine>
+            <MeasurementInput stateHook={[load, setLoad]} label="Load" />
+            <MeasurementInput stateHook={[angle, setAngle]} label="Angle" />
           </IOLine>
 
           <IOLine>
             <MeasurementInput
               stateHook={[travelDistance, setTravelDistance]}
               label="Travel Distance"
+              tooltip="The distance the elevator will travel. This is the distance from the starting position to the end position."
             />
             <MeasurementInput
               stateHook={[batteryResistance, setBatteryResistance]}
               label="Battery Resistance"
+              tooltip="The effective resistance of the battery. Includes wire runs."
             />
           </IOLine>
 
@@ -302,10 +321,12 @@ export default function Linear() {
             <MeasurementInput
               stateHook={[statorLimit, setStatorLimit]}
               label="Stator Limit"
+              tooltip="The current limit applied to the stator."
             />
             <MeasurementInput
               stateHook={[supplyLimit, setSupplyLimit]}
               label="Supply Limit"
+              tooltip="The current limit applied to the supply (battery). This is *not* supported by REVLib, so make sure the supply power limit is higher than the stator power limit for REV motors."
             />
           </IOLine>
 
@@ -313,10 +334,12 @@ export default function Linear() {
             <MeasurementInput
               stateHook={[statorVoltage, setStatorVoltage]}
               label="Stator Voltage"
+              tooltip="The voltage applied to the stator."
             />
             <MeasurementInput
               stateHook={[supplyVoltage, setSupplyVoltage]}
               label="Supply Voltage"
+              tooltip="The voltage available from the supply (battery) at rest."
             />
           </IOLine>
 
@@ -333,10 +356,6 @@ export default function Linear() {
               defaultUnit="W"
               roundTo={0}
             />
-          </IOLine>
-          <IOLine>
-            <MeasurementInput stateHook={[load, setLoad]} label="Load" />
-            <MeasurementInput stateHook={[angle, setAngle]} label="Angle" />
           </IOLine>
 
           <IOLine>
@@ -359,6 +378,12 @@ export default function Linear() {
           </IOLine>
 
           <IOLine>
+            <MeasurementOutput
+              state={batterySag}
+              label="Battery Sag"
+              defaultUnit="V"
+              roundTo={2}
+            />
             <MeasurementOutput
               state={minimumBatteryVoltage}
               label="Minimum Battery Voltage"

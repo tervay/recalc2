@@ -123,7 +123,10 @@ export class MotorRules {
 
     const inputPower = this.rulesState.voltage!.mul(this.rulesState.current!);
     const outputPower = this.rulesState.torque!.mul(this.rulesState.rpm!);
-    const efficiency = outputPower.div(inputPower);
+    const efficiency =
+      inputPower.scalar === 0
+        ? new Measurement(0)
+        : outputPower.div(inputPower);
 
     return {
       current: this.rulesState.current!,

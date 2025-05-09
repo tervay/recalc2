@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react';
 
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { TooltipContent, TooltipProvider } from '~/components/ui/tooltip';
+import { Tooltip, TooltipTrigger } from '~/components/ui/tooltip';
 import type { HasStateHook } from '~/lib/types/common';
 
 export default function NumberInput({
   stateHook,
   label,
-}: HasStateHook<number> & { label: string }) {
+  tooltip,
+}: HasStateHook<number> & { label: string; tooltip?: string }) {
   const [value, setValue] = stateHook;
   const [proxyValue, setProxyValue] = useState(value.toString());
 
@@ -21,13 +24,23 @@ export default function NumberInput({
 
   return (
     <div className="flex flex-row">
-      <Label htmlFor="number" className="mr-2 text-nowrap">
-        {label}
-      </Label>
+      {tooltip === undefined ? (
+        <Label htmlFor="number" className="mr-2 text-nowrap">
+          {label}
+        </Label>
+      ) : (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Label htmlFor="number" className="mr-2 text-nowrap">
+                {label}
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent>{tooltip}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       <Input
-        type="number"
-        id="number"
-        placeholder={label}
         value={proxyValue}
         onChange={(e) => {
           if (e.target.value !== '') {
