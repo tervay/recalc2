@@ -296,7 +296,10 @@ export default function Linear() {
               label="Spool Diameter"
               tooltip="The diameter of the spool or wheel that the elevator rigging is wrapped around. If a pulley or sprocket, use the pitch diameter."
             />
-            <BooleanInput stateHook={[cascade, setCascade]} label="Cascade Mechanism" />
+            <BooleanInput
+              stateHook={[cascade, setCascade]}
+              label="Cascade Mechanism"
+            />
           </IOLine>
 
           <IOLine>

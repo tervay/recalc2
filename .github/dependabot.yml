@@ -49,3 +49,8 @@ updates:
         patterns:
           - 'lodash-es'
           - '@types/lodash-es'
+      frequent:
+        patterns:
+          - '@types/node'
+          - 'lucide-react'
+          - 'isbot'
