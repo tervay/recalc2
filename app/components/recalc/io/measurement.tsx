@@ -22,7 +22,12 @@ export function MeasurementInput({
   stateHook,
   label,
   tooltip,
-}: HasStateHook<Measurement> & { label: string; tooltip?: string }) {
+  disabled,
+}: HasStateHook<Measurement> & {
+  label: string;
+  tooltip?: string;
+  disabled?: () => boolean;
+}) {
   const [meas, setMeas] = stateHook;
 
   const [scalar, setScalar] = useState(meas.scalar);
@@ -74,7 +79,8 @@ export function MeasurementInput({
               setProxyValue('');
             }
           }}
-          className="rounded-r-none"
+          className="rounded-r-none disabled:bg-gray-100 disabled:text-gray-900"
+          disabled={disabled?.()}
         />
         <Select value={unit} onValueChange={setUnit}>
           <SelectTrigger className="rounded-l-none">

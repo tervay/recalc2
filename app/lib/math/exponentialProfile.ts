@@ -1,6 +1,7 @@
 import { calculateLoadedBatteryVoltage } from '~/lib/math/batterySim';
 import Measurement from '~/lib/models/Measurement';
 import type Motor from '~/lib/models/Motor';
+import { nominalVoltage } from '~/lib/models/Motor';
 import type Ratio from '~/lib/models/Ratio';
 import { MotorRules } from '~/lib/rules';
 
@@ -260,7 +261,7 @@ export class ExponentialProfile {
     return Math.log((A * velocity + B * u) / (A * initial + B * u)) / A;
   }
 
-  private computeDistanceFromVelocity(
+  public computeDistanceFromVelocity(
     velocity: number,
     input: number,
     initial: State,
@@ -418,6 +419,70 @@ function simProfile(
   return results;
 }
 
+function simFlywheelProfile(
+  profile: ExponentialProfile,
+  current: State,
+  goal: State,
+  dt: number,
+  motor: Motor,
+  cuurrentLimit: Measurement,
+  ratio: Ratio,
+  batteryResistance: Measurement,
+  radialize: (m: Measurement) => Measurement,
+) {
+  const results: (State & {
+    time: number;
+    rpm: number;
+    voltage: number;
+    current: number;
+    torque: number;
+    power: number;
+    efficiency: number;
+    losses: number;
+    batteryVoltage: number;
+  })[] = [
+    {
+      ...current,
+      time: 0,
+      rpm: radialize(new Measurement(current.velocity, 'in/s')).to('rpm')
+        .scalar,
+      voltage: 0,
+      current: 0,
+      torque: 0,
+      power: 0,
+      efficiency: 0,
+      losses: 0,
+      batteryVoltage: nominalVoltage.to('V').scalar,
+    },
+  ];
+
+  while (current.velocity < goal.velocity) {
+    current = profile.calculate(dt, current, goal);
+
+    if (
+      results.length == 1 &&
+      ExponentialProfile.areStatesEqual(current, goal)
+    ) {
+      break;
+    }
+
+    results.push({
+      ...current,
+      time: (results.length + 1) * dt,
+      rpm: radialize(new Measurement(current.velocity, 'in/s')).to('rpm')
+        .scalar,
+      voltage: 0,
+      current: 0,
+      torque: 0,
+      power: 0,
+      efficiency: 0,
+      losses: 0,
+      batteryVoltage: 0,
+    });
+  }
+  return results;
+}
+
 export {
   fromCharacteristics,
   fromStateSpace,
@@ -426,4 +491,5 @@ export {
   type Constraints,
   type ProfileTiming,
   simProfile,
+  simFlywheelProfile,
 };

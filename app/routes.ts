@@ -6,4 +6,5 @@ export default [
   route('chains', 'routes/chains.tsx'),
   route('motors', 'routes/motors.tsx'),
   route('linear', 'routes/linear.tsx'),
+  route('flywheel', 'routes/flywheel.tsx'),
 ] satisfies RouteConfig;
