@@ -19,12 +19,6 @@ import { MotorInput } from '~/components/recalc/io/motor';
 import { RatioInput } from '~/components/recalc/io/ratio';
 import { ChartContainer } from '~/components/ui/chart';
 import { useQueryParams } from '~/lib/hooks';
-import {
-  ExponentialProfile,
-  createState,
-  fromCharacteristics,
-  simFlywheelProfile,
-} from '~/lib/math/exponentialProfile';
 import { calculateKa, calculateKv } from '~/lib/math/kVkA';
 import { generateProfile } from '~/lib/math/sheetExponentialProfile';
 import Measurement from '~/lib/models/Measurement';
@@ -139,20 +133,41 @@ export default function Flywheel() {
   );
   const [efficiency, setEfficiency] = useState(queryParams.efficiency);
 
+  const derivedShooterMOI = useMemo(
+    () => shooterWeight.mul(shooterDiameter.div(2).mul(shooterDiameter.div(2))),
+    [shooterWeight, shooterDiameter],
+  );
+
+  const derivedFlywheelMOI = useMemo(
+    () =>
+      flywheelWeight.mul(flywheelDiameter.div(2).mul(flywheelDiameter.div(2))),
+    [flywheelWeight, flywheelDiameter],
+  );
+
+  const usableShooterMOI = useMemo(
+    () => (useCustomShooterMoi ? customShooterMoi : derivedShooterMOI),
+    [useCustomShooterMoi, customShooterMoi, derivedShooterMOI],
+  );
+
+  const usableFlywheelMOI = useMemo(
+    () => (useCustomFlywheelMoi ? customFlywheelMoi : derivedFlywheelMOI),
+    [useCustomFlywheelMoi, customFlywheelMoi, derivedFlywheelMOI],
+  );
+
   const totalMomentOfInertia = useMemo(
     () =>
       ratio.asNumber() === 0
         ? new Measurement(0, 'in^2 * lbs')
-        : customShooterMoi
+        : usableShooterMOI
             .add(
-              customFlywheelMoi.div(
+              usableFlywheelMOI.div(
                 flywhweelToShooterRatio.asNumber() == 0
                   ? 1
                   : Math.pow(flywhweelToShooterRatio.asNumber(), 2),
               ),
             )
             .div(ratio.asNumber()),
-    [customShooterMoi, customFlywheelMoi, flywhweelToShooterRatio, ratio],
+    [usableShooterMOI, usableFlywheelMOI, flywhweelToShooterRatio, ratio],
   );
 
   const kV = useMemo(() => {
@@ -234,6 +249,10 @@ export default function Flywheel() {
     }));
   }, [sheetData.samples]);
 
+  const spinupTime = useMemo(() => {
+    return sheetData.samples[sheetData.samples.length - 1].t.to('s');
+  }, [sheetData.samples]);
+
   return (
     <div>
       <CalcHeading title="Flywheel Calculator" />
@@ -288,6 +307,14 @@ export default function Flywheel() {
           <IOLine>
             <MeasurementOutput state={kV} label="kV" defaultUnit="V*s/m" />
             <MeasurementOutput state={kA} label="kA" defaultUnit="V*s^2/m" />
+          </IOLine>
+
+          <IOLine>
+            <MeasurementOutput
+              state={spinupTime}
+              label="Spinup Time"
+              defaultUnit="s"
+            />
           </IOLine>
         </div>
         <ChartContainer config={{}} className="min-h-[200px] w-full">
