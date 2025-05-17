@@ -126,7 +126,7 @@ export class MotorRules {
     const efficiency =
       inputPower.scalar === 0
         ? new Measurement(0)
-        : outputPower.div(inputPower);
+        : outputPower.div(inputPower).toBase();
 
     return {
       current: this.rulesState.current!,

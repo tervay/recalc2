@@ -1,5 +1,5 @@
 import Qty from 'js-quantities';
-import { maxBy } from 'lodash-es';
+import { maxBy, minBy } from 'lodash-es';
 
 import Model from '~/lib/models/Model';
 
@@ -33,6 +33,10 @@ export default class Measurement extends Model {
 
   static maxAll(ms: Measurement[]): Measurement {
     return maxBy(ms, (a) => a.baseScalar)!;
+  }
+
+  static minAll(ms: Measurement[]): Measurement {
+    return minBy(ms, (a) => a.baseScalar)!;
   }
 
   static simplify(qty: Qty): Qty {
@@ -338,8 +342,6 @@ export default class Measurement extends Model {
   }
 
   radializeLinearPosition(inchesPerRevolution: Measurement): Measurement {
-    return this.div(inchesPerRevolution).mul(
-      new Measurement(2 * Math.PI, 'rad'),
-    );
+    return this.div(inchesPerRevolution).mul(new Measurement(1, 'rad'));
   }
 }
