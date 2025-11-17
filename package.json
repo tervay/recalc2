@@ -60,7 +60,7 @@
   "devDependencies": {
     "@eslint/compat": "2.0.0",
     "@eslint/js": "9.39.1",
-    "@iconify/json": "2.2.407",
+    "@iconify/json": "2.2.408",
     "@playwright/test": "1.56.1",
     "@react-router/dev": "7.9.6",
     "@svgr/core": "8.1.0",
