@@ -13,7 +13,7 @@
   - spinbutton: "5"
   - combobox: in
   - text: Extra Center
-  - spinbutton: "1"
+  - spinbutton: "0"
   - combobox: in
   - switch "Use Custom Belt"
   - text: Use Custom Belt Custom Belt Teeth
