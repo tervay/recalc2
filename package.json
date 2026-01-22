@@ -43,7 +43,7 @@
     "@react-three/drei": "10.7.7",
     "@react-three/fiber": "9.5.0",
     "@tanstack/react-table": "8.21.3",
-    "@vercel/react-router": "1.2.4",
+    "@vercel/react-router": "1.2.5",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "comlink": "4.4.2",
