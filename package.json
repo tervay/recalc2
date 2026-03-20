@@ -47,7 +47,7 @@
     "workerpool": "10.0.1"
   },
   "devDependencies": {
-    "@iconify/json": "2.2.450",
+    "@iconify/json": "2.2.452",
     "@playwright/test": "1.58.2",
     "@react-router/dev": "7.13.1",
     "@svgr/core": "8.1.0",
