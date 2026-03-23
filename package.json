@@ -84,7 +84,7 @@
     "vite-plugin-comlink": "5.3.0",
     "vite-plugin-sitemap": "0.8.2",
     "vite-plugin-top-level-await": "1.6.0",
-    "vitest": "4.1.0",
+    "vitest": "4.1.1",
     "yaml": "2.8.2",
     "zod": "4.3.6"
   },
