@@ -85,17 +85,17 @@ importers:
         specifier: 1.2.4
         version: 1.2.4
       '@iconify-json/fluent':
-        specifier: 1.2.42
-        version: 1.2.42
+        specifier: 1.2.43
+        version: 1.2.43
       '@iconify-json/line-md':
         specifier: 1.2.16
         version: 1.2.16
       '@iconify-json/lucide':
-        specifier: 1.2.99
-        version: 1.2.99
+        specifier: 1.2.100
+        version: 1.2.100
       '@iconify-json/material-symbols':
-        specifier: 1.2.63
-        version: 1.2.63
+        specifier: 1.2.64
+        version: 1.2.64
       '@iconify-json/mdi':
         specifier: 1.2.3
         version: 1.2.3
@@ -106,8 +106,8 @@ importers:
         specifier: 1.2.2
         version: 1.2.2
       '@iconify-json/tabler':
-        specifier: 1.2.32
-        version: 1.2.32
+        specifier: 1.2.33
+        version: 1.2.33
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -578,17 +578,17 @@ packages:
   '@iconify-json/fa7-solid@1.2.4':
     resolution: {integrity: sha512-Ns+ABU21PQpTjMZZ8idaQ9CDNYxjCJ/HY4+gkDsnAiJLkISMB2WIjoR2sjEj+Yok72sFwhXdYKBxwfRaGlwVpA==}
 
-  '@iconify-json/fluent@1.2.42':
-    resolution: {integrity: sha512-C0s0x/RHLcmG4fy710yA206ruiXegHqHwFFIzMh3KaFIPBPkNLfp5dKKjAnc5A60T8x/bbef1IxdSNHukF8vZA==}
+  '@iconify-json/fluent@1.2.43':
+    resolution: {integrity: sha512-5XdMOexai+TRKgQ88Ciw/ltdBtnvNdvWiJVHWX4+M6J8OyAGcKukb7Co7FLdj58QekVObht8HrPpf1KTJ92kdg==}
 
   '@iconify-json/line-md@1.2.16':
     resolution: {integrity: sha512-esHPUQUp30NyqJWa7MNu6ExdG8z/aEFC5r56rVyRGhtJ7acOme6YtYPnDOgVu6p+kk24rM8602xkFuBC6g6x+w==}
 
-  '@iconify-json/lucide@1.2.99':
-    resolution: {integrity: sha512-XE2Pg8uax2uN3ZbvvnO0C5ADgZOyUgEPiwnhD/xrJwz/bfpWwL3mbDwxntEWB2G1mwo2OqKMF50/jp6ia2QzKw==}
+  '@iconify-json/lucide@1.2.100':
+    resolution: {integrity: sha512-vCrhQ/6T530HEMkWOkSyedvMiuQdVU1tMHEs32k4tklJmCmjokH3Dej6ycvfLt7kftBSQ2kPSUiyOpoW3uOF5g==}
 
-  '@iconify-json/material-symbols@1.2.63':
-    resolution: {integrity: sha512-R4PS/l8K6j+dk2P2MoYFLJgfbZ4YDo6XjCOpX6b1tvX+BhiSpSOjc1b6cnb/mvWe+JWBKlt4pcvPNiAijFLPnA==}
+  '@iconify-json/material-symbols@1.2.64':
+    resolution: {integrity: sha512-80iGXJ/rsCE2zbEBWrLeOcyBNRD7v15EyaflUolgiAtaevSpTLBXlz+M53Bs2K/RkV/I4tOMMxyXVjQwKhTA9w==}
 
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
@@ -599,8 +599,8 @@ packages:
   '@iconify-json/streamline-ultimate@1.2.2':
     resolution: {integrity: sha512-0Vz9UHgMrmRUYt3JFqm0E6PDdroItVqK4fKf3T72jVwS2MAmc8dcqvCy+f0hzOVzJfo3G34ejFA9Y8l/K44hTQ==}
 
-  '@iconify-json/tabler@1.2.32':
-    resolution: {integrity: sha512-0UlpROc9X0VrqJLeE87o3JLsQauHMhj82GnH9TkPaymhBeS9wPB3NOqxQyzw+MHgPL08uVSggwfkTaoRfhQ+RQ==}
+  '@iconify-json/tabler@1.2.33':
+    resolution: {integrity: sha512-q9nUQfE/cjIrGh5bAKHTphitAZpT0kX9SxDgZo3Sx8ofeDTsaHVdRwrn+CfKiJ5vQ1b1btqVwizXzIgz9KEPjA==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -4636,7 +4636,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/fluent@1.2.42':
+  '@iconify-json/fluent@1.2.43':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4644,11 +4644,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/lucide@1.2.99':
+  '@iconify-json/lucide@1.2.100':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols@1.2.63':
+  '@iconify-json/material-symbols@1.2.64':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4664,7 +4664,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/tabler@1.2.32':
+  '@iconify-json/tabler@1.2.33':
     dependencies:
       '@iconify/types': 2.0.0
 
