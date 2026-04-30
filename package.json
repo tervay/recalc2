@@ -48,13 +48,13 @@
     "workerpool": "10.0.2"
   },
   "devDependencies": {
-    "@iconify-json/arcticons": "1.2.51",
+    "@iconify-json/arcticons": "1.2.52",
     "@iconify-json/carbon": "1.2.20",
     "@iconify-json/emojione-monotone": "1.2.1",
     "@iconify-json/fa7-solid": "1.2.4",
     "@iconify-json/fluent": "1.2.46",
     "@iconify-json/line-md": "1.2.16",
-    "@iconify-json/lucide": "1.2.104",
+    "@iconify-json/lucide": "1.2.105",
     "@iconify-json/material-symbols": "1.2.69",
     "@iconify-json/mdi": "1.2.3",
     "@iconify-json/solar": "1.2.5",
