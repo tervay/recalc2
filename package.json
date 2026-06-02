@@ -69,7 +69,7 @@
     "@types/node": "25.9.1",
     "@types/react": "19.2.15",
     "@types/react-dom": "19.2.3",
-    "commander": "14.0.3",
+    "commander": "15.0.0",
     "eslint-plugin-no-relative-import-paths": "1.6.1",
     "eslint-plugin-zod": "4.5.2",
     "node-fetch-cache": "5.1.0",
