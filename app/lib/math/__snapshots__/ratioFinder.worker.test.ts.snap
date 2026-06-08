@@ -2,6 +2,7 @@
 
 exports[`ratioFinderWorker > should find gearboxes with default settings 1`] = `
 {
+  "autoExpandedToThreeStage": false,
   "count": 3417,
   "solutions": [
     {

@@ -152,7 +152,7 @@ describe('ratioFinderWorker', () => {
     expect(gearsOnly.count).toBeGreaterThan(0);
   }, 15_000);
 
-  it('defaults to at most two stages', async () => {
+  it('stays at two stages and does not fall back when two-stage options exist', async () => {
     const result = await findGearboxes(
       new Ratio(20, RatioType.REDUCTION),
       0.25,
@@ -160,50 +160,59 @@ describe('ratioFinderWorker', () => {
       baseFilters,
     );
     expect(result.solutions.every((s) => s.stages.length <= 2)).toBe(true);
+    expect(result.autoExpandedToThreeStage).toBe(false);
   }, 15_000);
 
   // With planetaries disabled a single toothed stage tops out near 14:1, so two
   // stages cannot exceed ~196:1 and a 250:1 target needs exactly three stages.
   const highRatioFilters = { ...baseFilters, enablePlanetaries: false };
 
-  it('generates three-stage gearboxes for ratios unreachable in two stages', async () => {
+  it('auto-falls back to three stages when no one- or two-stage option exists', async () => {
     const result = await findGearboxes(
       new Ratio(250, RatioType.REDUCTION),
       5,
       'SplineXS',
       highRatioFilters,
-      3,
     );
     expect(result.solutions.length).toBeGreaterThan(0);
     expect(result.solutions.length).toBeLessThanOrEqual(50);
+    expect(result.autoExpandedToThreeStage).toBe(true);
     for (const s of result.solutions) {
       expect(s.stages.length).toBe(3);
       expect(Math.abs(s.ratio - 250)).toBeLessThanOrEqual(5);
     }
   }, 30_000);
 
-  it('does not generate three-stage gearboxes for that target when maxStages is 2', async () => {
+  it('does not search three stages when the fallback is disabled (maxStages 2)', async () => {
     const result = await findGearboxes(
       new Ratio(250, RatioType.REDUCTION),
       5,
       'SplineXS',
       highRatioFilters,
+      2,
     );
     // Two toothed stages cannot reach 250:1, so there are no solutions.
     expect(result.solutions.length).toBe(0);
+    expect(result.autoExpandedToThreeStage).toBe(false);
   }, 15_000);
 
-  it('applies per-stage constraints positionally across three stages', async () => {
+  it('applies per-stage constraints positionally across a three-stage fallback', async () => {
+    // gear -> belt is capped near 14 * 10.5 = 147:1, so a 200:1 target with a
+    // gear/belt/chain chain can only be met by falling back to three stages.
     const result = await findGearboxes(
-      new Ratio(20, RatioType.REDUCTION),
-      0.25,
+      new Ratio(200, RatioType.REDUCTION),
+      5,
       'SplineXS',
-      { ...baseFilters, stageConstraints: [['Gear'], ['Belt'], ['Chain']] },
-      3,
+      {
+        ...highRatioFilters,
+        stageConstraints: [['Gear'], ['Belt'], ['Chain']],
+      },
     );
     expect(result.solutions.length).toBeGreaterThan(0);
+    expect(result.autoExpandedToThreeStage).toBe(true);
     const expected = ['Gear', 'Pulley', 'Sprocket'];
     for (const s of result.solutions) {
+      expect(s.stages.length).toBe(3);
       s.stages.forEach((stage, index) => {
         for (const sku of [...stage.from.skus, ...stage.to.skus]) {
           expect(sku.family).toBe(expected[index]);

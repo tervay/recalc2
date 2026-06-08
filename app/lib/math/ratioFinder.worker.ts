@@ -166,10 +166,14 @@ export async function findGearboxes(
   targetReductionErrorThreshold: number,
   startingBore: Bore,
   filters: FindGearboxesFilters,
-  maxStages = 2,
+  // Ceiling on stages to search. Three-stage gearboxes are only ever returned
+  // as an automatic fallback when no one- or two-stage option exists; pass 2 to
+  // disable that fallback entirely.
+  maxStages = 3,
 ): Promise<{
   count: number;
   solutions: GearboxSolution[];
+  autoExpandedToThreeStage: boolean;
 }> {
   const targetReduction = Ratio.fromDict(targetReduction_);
   const skuInfoMap = new Map<string, SkuInfo>();
@@ -691,7 +695,6 @@ export async function findGearboxes(
 
   const stage0 = candidatesAt(0);
   const stage1 = maxStages >= 2 ? candidatesAt(1) : [];
-  const stage2 = maxStages >= 3 ? candidatesAt(2) : [];
 
   // Single-stage solutions.
   for (const a of stage0) {
@@ -723,9 +726,16 @@ export async function findGearboxes(
     }
   }
 
-  // Three-stage solutions. The first two stages are enumerated and the third is
-  // resolved by binary search; only a bounded best-by-error set is kept so
-  // memory stays flat no matter how many combinations exist.
+  // Three-stage solutions are an automatic fallback: we only search them when no
+  // one- or two-stage gearbox can reach the target. This keeps normal searches
+  // fast (the third stage is never built) and means the user never has to ask
+  // for three stages — they appear exactly when they are the only option. The
+  // first two stages are enumerated and the third is resolved by binary search,
+  // keeping only a bounded best-by-error set so memory stays flat for high
+  // ratios.
+  let autoExpandedToThreeStage = false;
+  const stage2 =
+    maxStages >= 3 && solutions.length === 0 ? candidatesAt(2) : [];
   if (stage0.length > 0 && stage1.length > 0 && stage2.length > 0) {
     const { sorted, ratios, lowerBound } = sortedIndex(stage2);
     const min = ratios[0];
@@ -773,6 +783,7 @@ export async function findGearboxes(
     }
 
     for (const entry of kept) solutions.push(entry.solution);
+    autoExpandedToThreeStage = solutions.length > 0;
   }
 
   solutions.sort(
@@ -793,5 +804,6 @@ export async function findGearboxes(
   return Promise.resolve({
     count: solutions.length,
     solutions: solutions.slice(0, 50),
+    autoExpandedToThreeStage,
   });
 }

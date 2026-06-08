@@ -21,11 +21,13 @@ test.describe('Ratio Finder - per-stage transmission type', () => {
   test('per-stage type filters are visible by default and fully selected', async ({
     page,
   }) => {
-    // The feature is discoverable without opening any menu.
+    // The feature is discoverable without opening any menu; all three stage
+    // filters are shown (Stage 3 applies only to the auto three-stage fallback).
     await expect(page.getByTestId('stage-1-families')).toBeVisible();
     await expect(page.getByTestId('stage-2-families')).toBeVisible();
+    await expect(page.getByTestId('stage-3-families')).toBeVisible();
 
-    for (const stage of ['Stage 1', 'Stage 2']) {
+    for (const stage of ['Stage 1', 'Stage 2', 'Stage 3']) {
       for (const family of FAMILIES) {
         await expect(
           page.getByRole('checkbox', { name: `${stage} ${family}` }),
@@ -89,21 +91,21 @@ test.describe('Ratio Finder - per-stage transmission type', () => {
     await expect(list.getByText(/Stage 2\s*\([^)]*Gear[^)]*\)/)).toHaveCount(0);
   });
 
-  test('enabling 3-stage search reveals the Stage 3 filter', async ({
+  test('auto-falls back to three stages for a ratio two stages cannot reach', async ({
     page,
   }) => {
-    // Three-stage is opt-in: the Stage 3 card is hidden until enabled.
-    await expect(page.getByTestId('stage-3-families')).toHaveCount(0);
+    // A single toothed stage tops out near 14:1, so two stages cannot exceed
+    // ~196:1. Disable planetaries (which can reach high ratios in fewer stages)
+    // and target 250:1 so the three-stage fallback must kick in.
+    await page.getByRole('checkbox', { name: 'Planetaries' }).click();
+    await page.getByTestId('reduction-magnitude').fill('250');
 
-    await page
-      .getByRole('checkbox', { name: 'Search 3-stage gearboxes (slower)' })
-      .click();
-
-    await expect(page.getByTestId('stage-3-families')).toBeVisible();
-    for (const family of FAMILIES) {
-      await expect(
-        page.getByRole('checkbox', { name: `Stage 3 ${family}` }),
-      ).toBeChecked();
-    }
+    await expect(page.getByTestId('three-stage-notice')).toBeVisible({
+      timeout: COMPUTE_TIMEOUT,
+    });
+    await waitForResults(page);
+    // Every shown gearbox is a three-stage gearbox.
+    const list = page.getByTestId('gearbox-list');
+    await expect(list.getByText(/Stage 3\s*\(/).first()).toBeVisible();
   });
 });

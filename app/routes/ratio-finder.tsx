@@ -68,7 +68,6 @@ const DEFAULT_PARAMS = {
   startingBore: BoreParam.withDefault('SplineXS' as Bore),
   // Empty array == "Auto" (unconstrained stage count and per-stage type).
   stageConstraints: StageConstraintListParam.withDefault([]),
-  enable3Stage: BooleanParam.withDefault(false),
 };
 
 const worker = new ComlinkWorker<typeof RatioFinderWorker>(
@@ -150,11 +149,12 @@ export default function RatioFinder() {
   );
   const [startingBore, setStartingBore] = useState(queryParams.startingBore);
 
-  // Per-stage transmission-type filters. These are positional: the Stage 1
-  // filter applies to every solution's first stage, the Stage 2 filter only to
-  // 2-stage solutions, the Stage 3 filter only to 3-stage solutions. Each
-  // defaults to all families, so the finder behaves exactly as before until the
-  // user narrows a stage. A stage with no families selected is treated as "any".
+  // Per-stage transmission-type filters, applied positionally: the Stage 1
+  // filter governs every solution's first stage, Stage 2 the second, Stage 3 a
+  // third stage. The finder searches one or two stages and only falls back to
+  // three when nothing else reaches the target, so the Stage 3 filter only
+  // matters in that case. Each defaults to all families; an empty stage means
+  // "any type".
   const initialStageConstraints = queryParams.stageConstraints;
   const [stage1Families, setStage1Families] = useState<StageFamily[]>(
     initialStageConstraints[0] ?? [...STAGE_FAMILIES],
@@ -165,16 +165,10 @@ export default function RatioFinder() {
   const [stage3Families, setStage3Families] = useState<StageFamily[]>(
     initialStageConstraints[2] ?? [...STAGE_FAMILIES],
   );
-  // Three-stage search is opt-in (it is slower and most gearboxes need ≤2).
-  const [enable3Stage, setEnable3Stage] = useState(queryParams.enable3Stage);
-  const maxStages = enable3Stage ? 3 : 2;
 
   const stageConstraints = useMemo<StageFamily[][]>(
-    () =>
-      enable3Stage
-        ? [stage1Families, stage2Families, stage3Families]
-        : [stage1Families, stage2Families],
-    [enable3Stage, stage1Families, stage2Families, stage3Families],
+    () => [stage1Families, stage2Families, stage3Families],
+    [stage1Families, stage2Families, stage3Families],
   );
 
   const [solutions, setSolutions] = useState<
@@ -182,6 +176,9 @@ export default function RatioFinder() {
   >([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  // True when the only gearboxes found needed a third stage.
+  const [autoExpandedToThreeStage, setAutoExpandedToThreeStage] =
+    useState(false);
 
   const filters: RatioFinderWorker.FindGearboxesFilters = useMemo(
     () => ({
@@ -269,7 +266,6 @@ export default function RatioFinder() {
         targetReductionErrorThreshold,
         startingBore,
         filters,
-        maxStages,
       )
       .then((results) => {
         if (cancelled) {
@@ -277,6 +273,7 @@ export default function RatioFinder() {
         }
         setCount(results.count);
         setSolutions(results.solutions);
+        setAutoExpandedToThreeStage(results.autoExpandedToThreeStage);
         setLoading(false);
       })
       .catch((error) => {
@@ -286,19 +283,14 @@ export default function RatioFinder() {
         console.error(error);
         setSolutions([]);
         setCount(0);
+        setAutoExpandedToThreeStage(false);
         setLoading(false);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [
-    targetReduction,
-    targetReductionErrorThreshold,
-    startingBore,
-    filters,
-    maxStages,
-  ]);
+  }, [targetReduction, targetReductionErrorThreshold, startingBore, filters]);
 
   const serializedState = useSerializedState(DEFAULT_PARAMS, {
     minGearTeeth,
@@ -335,7 +327,6 @@ export default function RatioFinder() {
     enableCustomSprockets,
     startingBore,
     stageConstraints,
-    enable3Stage,
   });
 
   return (
@@ -356,6 +347,7 @@ export default function RatioFinder() {
                   stateHook={[targetReduction, setTargetReduction]}
                   debounceDelay={300}
                   labelAbove
+                  testId="reduction-magnitude"
                 />
                 <BoreInput
                   stateHook={[startingBore, setStartingBore]}
@@ -564,15 +556,11 @@ export default function RatioFinder() {
                 Transmission Type Per Stage
               </h2>
               <p className="text-xs text-muted-foreground">
-                Restrict which power transmission types each stage may use. Each
-                stage's filter only applies to solutions that actually have that
-                stage.
+                Restrict which power transmission types each stage may use. The
+                finder searches one or two stages and only adds a third stage
+                when nothing else reaches the target, so the Stage 3 filter
+                applies only in that case.
               </p>
-              <CheckboxBooleanInput
-                stateHook={[enable3Stage, setEnable3Stage]}
-                label="Search 3-stage gearboxes (slower)"
-                testId="enable-3-stage"
-              />
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <StageFamilySelect
                   families={stage1Families}
@@ -586,14 +574,12 @@ export default function RatioFinder() {
                   label="Stage 2"
                   testId="stage-2-families"
                 />
-                {enable3Stage && (
-                  <StageFamilySelect
-                    families={stage3Families}
-                    setFamilies={setStage3Families}
-                    label="Stage 3"
-                    testId="stage-3-families"
-                  />
-                )}
+                <StageFamilySelect
+                  families={stage3Families}
+                  setFamilies={setStage3Families}
+                  label="Stage 3"
+                  testId="stage-3-families"
+                />
               </div>
             </div>
           </section>
@@ -603,6 +589,15 @@ export default function RatioFinder() {
           <Divider>
             {loading ? <Spinner /> : <>{count} Solutions Found</>}
           </Divider>
+          {autoExpandedToThreeStage && (
+            <div
+              className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+              data-testid="three-stage-notice"
+            >
+              No one- or two-stage gearbox reaches this ratio with the current
+              filters — showing three-stage options.
+            </div>
+          )}
           {solutions.length === 0 ? (
             <div className="text-muted-foreground">No solutions found</div>
           ) : (
