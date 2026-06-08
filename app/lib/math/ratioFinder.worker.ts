@@ -6,7 +6,12 @@ import Pulley from '~/lib/models/Pulley';
 import type { RatioDict } from '~/lib/models/Ratio';
 import Ratio from '~/lib/models/Ratio';
 import Sprocket from '~/lib/models/Sprocket';
-import { type Bore, type Vendor, zBoreSchema } from '~/lib/types/common';
+import {
+  type Bore,
+  type StageFamily,
+  type Vendor,
+  zBoreSchema,
+} from '~/lib/types/common';
 import type { JSONGear } from '~/lib/types/gears';
 import type { JSONPlanetaryInstance } from '~/lib/types/planetary';
 import type { JSONPulley } from '~/lib/types/pulleys';
@@ -60,6 +65,15 @@ export interface FindGearboxesFilters {
   enableCustomPulleys: boolean;
   enableCustomSprockets: boolean;
   enablePlanetaries: boolean;
+
+  /**
+   * Per-stage transmission-family constraints, applied positionally. Index 0
+   * restricts the first stage, index 1 the second; the stage count itself is
+   * still discovered automatically. Each inner array lists the families allowed
+   * for that stage, and an absent or empty entry leaves that stage open to any
+   * family. When omitted entirely the finder behaves exactly as before.
+   */
+  stageConstraints?: StageFamily[][];
 }
 
 interface SkuInfo {
@@ -430,6 +444,21 @@ export async function findGearboxes(
   const withinErrorThreshold = (ratio: number, targetRatio: number) => {
     return Math.abs(ratio - targetRatio) <= targetReductionErrorThreshold;
   };
+
+  // Per-stage transmission-family filter applied positionally: stage index 0 is
+  // governed by stageConstraints[0], index 1 by stageConstraints[1]. The stage
+  // count is still discovered automatically (1- and 2-stage solutions are both
+  // enumerated), so a 1-stage solution only needs to satisfy the first stage's
+  // filter. An absent or empty entry leaves that stage open to any family, so
+  // the default (no constraints) preserves the original behavior exactly.
+  const stageConstraints = filters.stageConstraints ?? [];
+  const stageAllowsFamily = (stageIndex: number, family: StageFamily) => {
+    const allowed = stageConstraints[stageIndex];
+    return (
+      allowed === undefined || allowed.length === 0 || allowed.includes(family)
+    );
+  };
+
   for (const [tooth1, tooth2, ratio] of allValidStagesWithRatios) {
     if (tooth1 === tooth2) {
       continue;
@@ -722,12 +751,14 @@ export async function findGearboxes(
 
   for (const maybeSolution of maybeSolutions) {
     for (const [index, stage] of maybeSolution.stages.entries()) {
-      const maybe20DPGears = stageFrom20DPGears(
-        [stage.from.teeth, stage.to.teeth],
-        index,
-        startingBore,
-        allGears,
-      );
+      const maybe20DPGears = stageAllowsFamily(index, 'Gear')
+        ? stageFrom20DPGears(
+            [stage.from.teeth, stage.to.teeth],
+            index,
+            startingBore,
+            allGears,
+          )
+        : null;
       if (maybe20DPGears) {
         const [driving, driven] = maybe20DPGears;
 
@@ -735,12 +766,14 @@ export async function findGearboxes(
         stage.to.skus.push(...driven.map((g) => skuInfoMap.get(g.sku!)!));
       }
 
-      const maybe32DPGears = stageFrom32DPGears(
-        [stage.from.teeth, stage.to.teeth],
-        index,
-        startingBore,
-        allGears,
-      );
+      const maybe32DPGears = stageAllowsFamily(index, 'Gear')
+        ? stageFrom32DPGears(
+            [stage.from.teeth, stage.to.teeth],
+            index,
+            startingBore,
+            allGears,
+          )
+        : null;
       if (maybe32DPGears) {
         const [driving, driven] = maybe32DPGears;
 
@@ -748,12 +781,14 @@ export async function findGearboxes(
         stage.to.skus.push(...driven.map((g) => skuInfoMap.get(g.sku!)!));
       }
 
-      const maybeGT2Pulleys = stageFromGT2Pulleys(
-        [stage.from.teeth, stage.to.teeth],
-        index,
-        startingBore,
-        allPulleys,
-      );
+      const maybeGT2Pulleys = stageAllowsFamily(index, 'Belt')
+        ? stageFromGT2Pulleys(
+            [stage.from.teeth, stage.to.teeth],
+            index,
+            startingBore,
+            allPulleys,
+          )
+        : null;
       if (maybeGT2Pulleys) {
         const [driving, driven] = maybeGT2Pulleys;
 
@@ -761,12 +796,14 @@ export async function findGearboxes(
         stage.to.skus.push(...driven.map((p) => skuInfoMap.get(p.sku!)!));
       }
 
-      const maybeHTDPulleys = stageFromHTDPulleys(
-        [stage.from.teeth, stage.to.teeth],
-        index,
-        startingBore,
-        allPulleys,
-      );
+      const maybeHTDPulleys = stageAllowsFamily(index, 'Belt')
+        ? stageFromHTDPulleys(
+            [stage.from.teeth, stage.to.teeth],
+            index,
+            startingBore,
+            allPulleys,
+          )
+        : null;
       if (maybeHTDPulleys) {
         const [driving, driven] = maybeHTDPulleys;
 
@@ -774,12 +811,14 @@ export async function findGearboxes(
         stage.to.skus.push(...driven.map((p) => skuInfoMap.get(p.sku!)!));
       }
 
-      const maybe25ChainSprockets = stageFrom25ChainSprockets(
-        [stage.from.teeth, stage.to.teeth],
-        index,
-        startingBore,
-        allSprockets,
-      );
+      const maybe25ChainSprockets = stageAllowsFamily(index, 'Chain')
+        ? stageFrom25ChainSprockets(
+            [stage.from.teeth, stage.to.teeth],
+            index,
+            startingBore,
+            allSprockets,
+          )
+        : null;
       if (maybe25ChainSprockets) {
         const [driving, driven] = maybe25ChainSprockets;
 
@@ -787,12 +826,14 @@ export async function findGearboxes(
         stage.to.skus.push(...driven.map((s) => skuInfoMap.get(s.sku!)!));
       }
 
-      const maybe35ChainSprockets = stageFrom35ChainSprockets(
-        [stage.from.teeth, stage.to.teeth],
-        index,
-        startingBore,
-        allSprockets,
-      );
+      const maybe35ChainSprockets = stageAllowsFamily(index, 'Chain')
+        ? stageFrom35ChainSprockets(
+            [stage.from.teeth, stage.to.teeth],
+            index,
+            startingBore,
+            allSprockets,
+          )
+        : null;
       if (maybe35ChainSprockets) {
         const [driving, driven] = maybe35ChainSprockets;
 
@@ -800,12 +841,14 @@ export async function findGearboxes(
         stage.to.skus.push(...driven.map((s) => skuInfoMap.get(s.sku!)!));
       }
 
-      const maybePlanetaries = stageFromPlanetaries(
-        [stage.from.teeth, stage.to.teeth],
-        index,
-        startingBore,
-        allPlanetaries,
-      );
+      const maybePlanetaries = stageAllowsFamily(index, 'Planetary')
+        ? stageFromPlanetaries(
+            [stage.from.teeth, stage.to.teeth],
+            index,
+            startingBore,
+            allPlanetaries,
+          )
+        : null;
       if (maybePlanetaries) {
         stage.from.skus.push(
           ...maybePlanetaries.map(
