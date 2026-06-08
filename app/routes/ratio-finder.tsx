@@ -594,7 +594,7 @@ export default function RatioFinder() {
               className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
               data-testid="three-stage-notice"
             >
-              No one- or two-stage gearbox reaches this ratio with the current
+              No one or two-stage gearbox reaches this ratio with the current
               filters — showing three-stage options.
             </div>
           )}
