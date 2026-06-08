@@ -88,4 +88,22 @@ test.describe('Ratio Finder - per-stage transmission type', () => {
     await expect(list.getByText(/Stage 1\s*\([^)]*Belt[^)]*\)/)).toHaveCount(0);
     await expect(list.getByText(/Stage 2\s*\([^)]*Gear[^)]*\)/)).toHaveCount(0);
   });
+
+  test('enabling 3-stage search reveals the Stage 3 filter', async ({
+    page,
+  }) => {
+    // Three-stage is opt-in: the Stage 3 card is hidden until enabled.
+    await expect(page.getByTestId('stage-3-families')).toHaveCount(0);
+
+    await page
+      .getByRole('checkbox', { name: 'Search 3-stage gearboxes (slower)' })
+      .click();
+
+    await expect(page.getByTestId('stage-3-families')).toBeVisible();
+    for (const family of FAMILIES) {
+      await expect(
+        page.getByRole('checkbox', { name: `Stage 3 ${family}` }),
+      ).toBeChecked();
+    }
+  });
 });

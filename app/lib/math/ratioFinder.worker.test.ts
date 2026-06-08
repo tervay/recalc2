@@ -151,4 +151,64 @@ describe('ratioFinderWorker', () => {
     expect(gearsOnly.count).toBeLessThanOrEqual(unconstrained.count);
     expect(gearsOnly.count).toBeGreaterThan(0);
   }, 15_000);
+
+  it('defaults to at most two stages', async () => {
+    const result = await findGearboxes(
+      new Ratio(20, RatioType.REDUCTION),
+      0.25,
+      'SplineXS',
+      baseFilters,
+    );
+    expect(result.solutions.every((s) => s.stages.length <= 2)).toBe(true);
+  }, 15_000);
+
+  // With planetaries disabled a single toothed stage tops out near 14:1, so two
+  // stages cannot exceed ~196:1 and a 250:1 target needs exactly three stages.
+  const highRatioFilters = { ...baseFilters, enablePlanetaries: false };
+
+  it('generates three-stage gearboxes for ratios unreachable in two stages', async () => {
+    const result = await findGearboxes(
+      new Ratio(250, RatioType.REDUCTION),
+      5,
+      'SplineXS',
+      highRatioFilters,
+      3,
+    );
+    expect(result.solutions.length).toBeGreaterThan(0);
+    expect(result.solutions.length).toBeLessThanOrEqual(50);
+    for (const s of result.solutions) {
+      expect(s.stages.length).toBe(3);
+      expect(Math.abs(s.ratio - 250)).toBeLessThanOrEqual(5);
+    }
+  }, 30_000);
+
+  it('does not generate three-stage gearboxes for that target when maxStages is 2', async () => {
+    const result = await findGearboxes(
+      new Ratio(250, RatioType.REDUCTION),
+      5,
+      'SplineXS',
+      highRatioFilters,
+    );
+    // Two toothed stages cannot reach 250:1, so there are no solutions.
+    expect(result.solutions.length).toBe(0);
+  }, 15_000);
+
+  it('applies per-stage constraints positionally across three stages', async () => {
+    const result = await findGearboxes(
+      new Ratio(20, RatioType.REDUCTION),
+      0.25,
+      'SplineXS',
+      { ...baseFilters, stageConstraints: [['Gear'], ['Belt'], ['Chain']] },
+      3,
+    );
+    expect(result.solutions.length).toBeGreaterThan(0);
+    const expected = ['Gear', 'Pulley', 'Sprocket'];
+    for (const s of result.solutions) {
+      s.stages.forEach((stage, index) => {
+        for (const sku of [...stage.from.skus, ...stage.to.skus]) {
+          expect(sku.family).toBe(expected[index]);
+        }
+      });
+    }
+  }, 30_000);
 });

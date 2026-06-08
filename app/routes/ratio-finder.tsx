@@ -68,6 +68,7 @@ const DEFAULT_PARAMS = {
   startingBore: BoreParam.withDefault('SplineXS' as Bore),
   // Empty array == "Auto" (unconstrained stage count and per-stage type).
   stageConstraints: StageConstraintListParam.withDefault([]),
+  enable3Stage: BooleanParam.withDefault(false),
 };
 
 const worker = new ComlinkWorker<typeof RatioFinderWorker>(
@@ -151,9 +152,9 @@ export default function RatioFinder() {
 
   // Per-stage transmission-type filters. These are positional: the Stage 1
   // filter applies to every solution's first stage, the Stage 2 filter only to
-  // 2-stage solutions. Each defaults to all families, so the finder behaves
-  // exactly as before until the user narrows a stage. A stage with no families
-  // selected is treated as "any type".
+  // 2-stage solutions, the Stage 3 filter only to 3-stage solutions. Each
+  // defaults to all families, so the finder behaves exactly as before until the
+  // user narrows a stage. A stage with no families selected is treated as "any".
   const initialStageConstraints = queryParams.stageConstraints;
   const [stage1Families, setStage1Families] = useState<StageFamily[]>(
     initialStageConstraints[0] ?? [...STAGE_FAMILIES],
@@ -161,10 +162,19 @@ export default function RatioFinder() {
   const [stage2Families, setStage2Families] = useState<StageFamily[]>(
     initialStageConstraints[1] ?? [...STAGE_FAMILIES],
   );
+  const [stage3Families, setStage3Families] = useState<StageFamily[]>(
+    initialStageConstraints[2] ?? [...STAGE_FAMILIES],
+  );
+  // Three-stage search is opt-in (it is slower and most gearboxes need ≤2).
+  const [enable3Stage, setEnable3Stage] = useState(queryParams.enable3Stage);
+  const maxStages = enable3Stage ? 3 : 2;
 
   const stageConstraints = useMemo<StageFamily[][]>(
-    () => [stage1Families, stage2Families],
-    [stage1Families, stage2Families],
+    () =>
+      enable3Stage
+        ? [stage1Families, stage2Families, stage3Families]
+        : [stage1Families, stage2Families],
+    [enable3Stage, stage1Families, stage2Families, stage3Families],
   );
 
   const [solutions, setSolutions] = useState<
@@ -259,6 +269,7 @@ export default function RatioFinder() {
         targetReductionErrorThreshold,
         startingBore,
         filters,
+        maxStages,
       )
       .then((results) => {
         if (cancelled) {
@@ -281,7 +292,13 @@ export default function RatioFinder() {
     return () => {
       cancelled = true;
     };
-  }, [targetReduction, targetReductionErrorThreshold, startingBore, filters]);
+  }, [
+    targetReduction,
+    targetReductionErrorThreshold,
+    startingBore,
+    filters,
+    maxStages,
+  ]);
 
   const serializedState = useSerializedState(DEFAULT_PARAMS, {
     minGearTeeth,
@@ -318,6 +335,7 @@ export default function RatioFinder() {
     enableCustomSprockets,
     startingBore,
     stageConstraints,
+    enable3Stage,
   });
 
   return (
@@ -546,10 +564,16 @@ export default function RatioFinder() {
                 Transmission Type Per Stage
               </h2>
               <p className="text-xs text-muted-foreground">
-                Restrict which power transmission types each stage may use. The
-                Stage 2 filter only affects two-stage solutions.
+                Restrict which power transmission types each stage may use. Each
+                stage's filter only applies to solutions that actually have that
+                stage.
               </p>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <CheckboxBooleanInput
+                stateHook={[enable3Stage, setEnable3Stage]}
+                label="Search 3-stage gearboxes (slower)"
+                testId="enable-3-stage"
+              />
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <StageFamilySelect
                   families={stage1Families}
                   setFamilies={setStage1Families}
@@ -562,6 +586,14 @@ export default function RatioFinder() {
                   label="Stage 2"
                   testId="stage-2-families"
                 />
+                {enable3Stage && (
+                  <StageFamilySelect
+                    families={stage3Families}
+                    setFamilies={setStage3Families}
+                    label="Stage 3"
+                    testId="stage-3-families"
+                  />
+                )}
               </div>
             </div>
           </section>

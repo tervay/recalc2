@@ -99,203 +99,6 @@ export interface GearboxSolution {
   }[];
 }
 
-function stageFrom20DPGears(
-  stage: [number, number],
-  stageIndex: number,
-  startingBore: Bore,
-  gears: Gear[],
-): [Gear[], Gear[]] | null {
-  const [teeth1, teeth2] = stage;
-
-  const gear1 = gears.filter(
-    (g) =>
-      g.teeth === teeth1 &&
-      g.dp === 20 &&
-      (stageIndex === 0
-        ? g.bore === startingBore
-        : !MOTOR_BORES.includes(g.bore)),
-  );
-  const gear2 = gears.filter(
-    (g) => g.teeth === teeth2 && g.dp === 20 && !MOTOR_BORES.includes(g.bore),
-  );
-
-  if (gear1.length === 0 || gear2.length === 0) {
-    return null;
-  }
-
-  return [gear1, gear2];
-}
-
-function stageFrom32DPGears(
-  stage: [number, number],
-  stageIndex: number,
-  startingBore: Bore,
-  gears: Gear[],
-): [Gear[], Gear[]] | null {
-  const [teeth1, teeth2] = stage;
-
-  const gear1 = gears.filter(
-    (g) =>
-      g.teeth === teeth1 &&
-      g.dp === 32 &&
-      (stageIndex === 0
-        ? g.bore === startingBore
-        : !MOTOR_BORES.includes(g.bore)),
-  );
-  const gear2 = gears.filter(
-    (g) => g.teeth === teeth2 && g.dp === 32 && !MOTOR_BORES.includes(g.bore),
-  );
-
-  if (gear1.length === 0 || gear2.length === 0) {
-    return null;
-  }
-
-  return [gear1, gear2];
-}
-
-function stageFromGT2Pulleys(
-  stage: [number, number],
-  stageIndex: number,
-  startingBore: Bore,
-  pulleys: Pulley[],
-): [Pulley[], Pulley[]] | null {
-  const [teeth1, teeth2] = stage;
-
-  const pulley1 = pulleys.filter(
-    (p) =>
-      p.teeth === teeth1 &&
-      p.pitch.eq(new Measurement(3, 'mm')) &&
-      (stageIndex === 0
-        ? p.bore === startingBore
-        : !MOTOR_BORES.includes(p.bore)),
-  );
-  const pulley2 = pulleys.filter(
-    (p) =>
-      p.teeth === teeth2 &&
-      p.pitch.eq(new Measurement(3, 'mm')) &&
-      !MOTOR_BORES.includes(p.bore),
-  );
-
-  if (pulley1.length === 0 || pulley2.length === 0) {
-    return null;
-  }
-
-  return [pulley1, pulley2];
-}
-
-function stageFromHTDPulleys(
-  stage: [number, number],
-  stageIndex: number,
-  startingBore: Bore,
-  pulleys: Pulley[],
-): [Pulley[], Pulley[]] | null {
-  const [teeth1, teeth2] = stage;
-
-  const pulley1 = pulleys.filter(
-    (p) =>
-      p.teeth === teeth1 &&
-      p.pitch.eq(new Measurement(5, 'mm')) &&
-      (stageIndex === 0
-        ? p.bore === startingBore
-        : !MOTOR_BORES.includes(p.bore)),
-  );
-  const pulley2 = pulleys.filter(
-    (p) =>
-      p.teeth === teeth2 &&
-      p.pitch.eq(new Measurement(5, 'mm')) &&
-      !MOTOR_BORES.includes(p.bore),
-  );
-
-  if (pulley1.length === 0 || pulley2.length === 0) {
-    return null;
-  }
-
-  return [pulley1, pulley2];
-}
-
-function stageFrom25ChainSprockets(
-  stage: [number, number],
-  stageIndex: number,
-  startingBore: Bore,
-  sprockets: Sprocket[],
-): [Sprocket[], Sprocket[]] | null {
-  const [teeth1, teeth2] = stage;
-  const sprocket1 = sprockets.filter(
-    (s) =>
-      s.teeth === teeth1 &&
-      s.chainType === '#25' &&
-      (stageIndex === 0
-        ? s.bore === startingBore
-        : !MOTOR_BORES.includes(s.bore)),
-  );
-  const sprocket2 = sprockets.filter(
-    (s) =>
-      s.teeth === teeth2 &&
-      s.chainType === '#25' &&
-      !MOTOR_BORES.includes(s.bore),
-  );
-
-  if (sprocket1.length === 0 || sprocket2.length === 0) {
-    return null;
-  }
-
-  return [sprocket1, sprocket2];
-}
-
-function stageFrom35ChainSprockets(
-  stage: [number, number],
-  stageIndex: number,
-  startingBore: Bore,
-  sprockets: Sprocket[],
-): [Sprocket[], Sprocket[]] | null {
-  const [teeth1, teeth2] = stage;
-  const sprocket1 = sprockets.filter(
-    (s) =>
-      s.teeth === teeth1 &&
-      s.chainType === '#35' &&
-      (stageIndex === 0
-        ? s.bore === startingBore
-        : !MOTOR_BORES.includes(s.bore)),
-  );
-  const sprocket2 = sprockets.filter(
-    (s) =>
-      s.teeth === teeth2 &&
-      s.chainType === '#35' &&
-      !MOTOR_BORES.includes(s.bore),
-  );
-
-  if (sprocket1.length === 0 || sprocket2.length === 0) {
-    return null;
-  }
-
-  return [sprocket1, sprocket2];
-}
-
-function stageFromPlanetaries(
-  stage: [number, number],
-  stageIndex: number,
-  startingBore: Bore,
-  planetaries: JSONPlanetaryInstance[],
-): JSONPlanetaryInstance[] | null {
-  const [teeth1, teeth2] = stage;
-  if (teeth1 !== 1) {
-    return null;
-  }
-
-  const planetary = planetaries.filter(
-    (p) =>
-      (stageIndex === 0
-        ? p.inputBore === startingBore
-        : !MOTOR_BORES.includes(p.inputBore)) && p.ratio === teeth2 / teeth1,
-  );
-
-  if (planetary.length === 0) {
-    return null;
-  }
-
-  return planetary;
-}
-
 function generateCustomGears(
   minTeeth: number,
   maxTeeth: number,
@@ -363,12 +166,12 @@ export async function findGearboxes(
   targetReductionErrorThreshold: number,
   startingBore: Bore,
   filters: FindGearboxesFilters,
+  maxStages = 2,
 ): Promise<{
   count: number;
   solutions: GearboxSolution[];
 }> {
   const targetReduction = Ratio.fromDict(targetReduction_);
-  const maybeSolutions: GearboxSolution[] = [];
   const skuInfoMap = new Map<string, SkuInfo>();
 
   const vendorMap: Record<string, boolean> = {
@@ -458,42 +261,6 @@ export async function findGearboxes(
       allowed === undefined || allowed.length === 0 || allowed.includes(family)
     );
   };
-
-  for (const [tooth1, tooth2, ratio] of allValidStagesWithRatios) {
-    if (tooth1 === tooth2) {
-      continue;
-    }
-    if (withinErrorThreshold(ratio, targetReduction.asNumber())) {
-      maybeSolutions.push({
-        ratio: ratio,
-        stages: [
-          {
-            from: { teeth: tooth1, skus: [] },
-            to: { teeth: tooth2, skus: [] },
-          },
-        ],
-      });
-    }
-
-    for (const [tooth3, tooth4, ratio2] of allValidStagesWithRatios) {
-      const combinedRatio = ratio * ratio2;
-      if (withinErrorThreshold(combinedRatio, targetReduction.asNumber())) {
-        maybeSolutions.push({
-          ratio: combinedRatio,
-          stages: [
-            {
-              from: { teeth: tooth1, skus: [] },
-              to: { teeth: tooth2, skus: [] },
-            },
-            {
-              from: { teeth: tooth3, skus: [] },
-              to: { teeth: tooth4, skus: [] },
-            },
-          ],
-        });
-      }
-    }
-  }
 
   allPlanetaries.forEach((p) => {
     skuInfoMap.set(`${p.sku}-${p.inputBore}-${p.slices.join(':')}`, {
@@ -747,140 +514,265 @@ export async function findGearboxes(
           return true;
         }),
     );
+  // Teeth-indexed SKU buckets per transmission variant, split by whether the
+  // part can sit on the starting (motor) shaft or any non-motor shaft. Matching
+  // a stage then becomes O(1) lookups instead of scanning the full parts list
+  // for every candidate, which dominated runtime on large searches.
+  const skuSorter = (a: SkuInfo, b: SkuInfo) =>
+    a.family.localeCompare(b.family) ||
+    a.vendor.localeCompare(b.vendor) ||
+    a.pitch.localeCompare(b.pitch) ||
+    a.bore.localeCompare(b.bore) ||
+    a.sku.localeCompare(b.sku);
+
+  interface VariantBucket {
+    first: Map<number, SkuInfo[]>;
+    nonMotor: Map<number, SkuInfo[]>;
+  }
+  const newBucket = (): VariantBucket => ({
+    first: new Map(),
+    nonMotor: new Map(),
+  });
+  const pushInto = (
+    map: Map<number, SkuInfo[]>,
+    teeth: number,
+    sku: SkuInfo,
+  ) => {
+    const arr = map.get(teeth);
+    if (arr) arr.push(sku);
+    else map.set(teeth, [sku]);
+  };
+  const addToBucket = (
+    bucket: VariantBucket,
+    teeth: number,
+    bore: Bore,
+    sku: SkuInfo,
+  ) => {
+    if (bore === startingBore) pushInto(bucket.first, teeth, sku);
+    if (!MOTOR_BORES.includes(bore)) pushInto(bucket.nonMotor, teeth, sku);
+  };
+
+  const gear20 = newBucket();
+  const gear32 = newBucket();
+  const gt2 = newBucket();
+  const htd = newBucket();
+  const chain25 = newBucket();
+  const chain35 = newBucket();
+  for (const g of allGears) {
+    const sku = skuInfoMap.get(g.sku ?? '');
+    if (!sku) continue;
+    // Only 20DP and 32DP gears mesh in the families the finder supports; any
+    // other diametral pitch is ignored (matching the original matchers).
+    if (g.dp === 20) addToBucket(gear20, g.teeth, g.bore, sku);
+    else if (g.dp === 32) addToBucket(gear32, g.teeth, g.bore, sku);
+  }
+  const mm3 = new Measurement(3, 'mm');
+  const mm5 = new Measurement(5, 'mm');
+  for (const p of allPulleys) {
+    const sku = skuInfoMap.get(p.sku ?? '');
+    if (!sku) continue;
+    if (p.pitch.eq(mm3)) addToBucket(gt2, p.teeth, p.bore, sku);
+    else if (p.pitch.eq(mm5)) addToBucket(htd, p.teeth, p.bore, sku);
+  }
+  for (const s of allSprockets) {
+    const sku = skuInfoMap.get(s.sku ?? '');
+    if (!sku) continue;
+    if (s.chainType === '#25') addToBucket(chain25, s.teeth, s.bore, sku);
+    else if (s.chainType === '#35') addToBucket(chain35, s.teeth, s.bore, sku);
+  }
+
+  const planetaryFirst = new Map<number, { from: SkuInfo; to: SkuInfo }[]>();
+  const planetaryInner = new Map<number, { from: SkuInfo; to: SkuInfo }[]>();
+  const pushPlanet = (
+    map: Map<number, { from: SkuInfo; to: SkuInfo }[]>,
+    ratio: number,
+    pair: { from: SkuInfo; to: SkuInfo },
+  ) => {
+    const arr = map.get(ratio);
+    if (arr) arr.push(pair);
+    else map.set(ratio, [pair]);
+  };
+  for (const p of allPlanetaries) {
+    const slices = p.slices.join(':');
+    const from = skuInfoMap.get(`${p.sku}-${p.inputBore}-${slices}`);
+    const to = skuInfoMap.get(`${p.sku}-${p.outputBore}-${slices}`);
+    if (!from || !to) continue;
+    if (p.inputBore === startingBore && !MOTOR_BORES.includes(p.outputBore))
+      pushPlanet(planetaryFirst, p.ratio, { from, to });
+    if (
+      !MOTOR_BORES.includes(p.inputBore) &&
+      !MOTOR_BORES.includes(p.outputBore)
+    )
+      pushPlanet(planetaryInner, p.ratio, { from, to });
+  }
+
+  const toothedVariants: [VariantBucket, StageFamily][] = [
+    [gear20, 'Gear'],
+    [gear32, 'Gear'],
+    [gt2, 'Belt'],
+    [htd, 'Belt'],
+    [chain25, 'Chain'],
+    [chain35, 'Chain'],
+  ];
+
+  // Build a fully-matched stage for a [from, to] tooth pair at a given stage
+  // position (0 == on the motor shaft), or null when no real parts realize it.
+  const matchStageAt = (
+    fromTeeth: number,
+    toTeeth: number,
+    position: number,
+  ): GearboxSolution['stages'][number] | null => {
+    const isFirst = position === 0;
+    const fromSkus: SkuInfo[] = [];
+    const toSkus: SkuInfo[] = [];
+    for (const [bucket, family] of toothedVariants) {
+      if (!stageAllowsFamily(position, family)) continue;
+      const driving = (isFirst ? bucket.first : bucket.nonMotor).get(fromTeeth);
+      const driven = bucket.nonMotor.get(toTeeth);
+      if (driving && driven) {
+        fromSkus.push(...driving);
+        toSkus.push(...driven);
+      }
+    }
+    if (stageAllowsFamily(position, 'Planetary') && fromTeeth === 1) {
+      const pairs = (isFirst ? planetaryFirst : planetaryInner).get(toTeeth);
+      if (pairs)
+        for (const pair of pairs) {
+          fromSkus.push(pair.from);
+          toSkus.push(pair.to);
+        }
+    }
+    if (fromSkus.length === 0 || toSkus.length === 0) return null;
+    fromSkus.sort(skuSorter);
+    toSkus.sort(skuSorter);
+    return {
+      from: { teeth: fromTeeth, skus: fromSkus },
+      to: { teeth: toTeeth, skus: toSkus },
+    };
+  };
+
+  // Build each stage position's buildable candidates once (each already carries
+  // its matched SKUs), then enumerate combinations over only those candidates.
+  // Iterating buildable stages instead of the full tooth grid is what keeps
+  // every stage count fast — most tooth pairs have no real parts.
+  interface Candidate {
+    ratio: number;
+    stage: GearboxSolution['stages'][number];
+  }
+  const candidatesAt = (position: number): Candidate[] => {
+    const out: Candidate[] = [];
+    for (const [t1, t2, ratio] of allValidStagesWithRatios) {
+      const stage = matchStageAt(t1, t2, position);
+      if (stage) out.push({ ratio, stage });
+    }
+    return out;
+  };
+
+  // A sorted-ratio view of a candidate list, for binary-searching the narrow
+  // window of last-stage ratios that bring a combination onto the target.
+  const sortedIndex = (candidates: Candidate[]) => {
+    const sorted = [...candidates].sort((a, b) => a.ratio - b.ratio);
+    const ratios = sorted.map((c) => c.ratio);
+    const lowerBound = (value: number) => {
+      let lo = 0;
+      let hi = ratios.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (ratios[mid] < value) lo = mid + 1;
+        else hi = mid;
+      }
+      return lo;
+    };
+    return { sorted, ratios, lowerBound };
+  };
+
+  const target = targetReduction.asNumber();
   const solutions: GearboxSolution[] = [];
 
-  for (const maybeSolution of maybeSolutions) {
-    for (const [index, stage] of maybeSolution.stages.entries()) {
-      const maybe20DPGears = stageAllowsFamily(index, 'Gear')
-        ? stageFrom20DPGears(
-            [stage.from.teeth, stage.to.teeth],
-            index,
-            startingBore,
-            allGears,
-          )
-        : null;
-      if (maybe20DPGears) {
-        const [driving, driven] = maybe20DPGears;
+  const stage0 = candidatesAt(0);
+  const stage1 = maxStages >= 2 ? candidatesAt(1) : [];
+  const stage2 = maxStages >= 3 ? candidatesAt(2) : [];
 
-        stage.from.skus.push(...driving.map((g) => skuInfoMap.get(g.sku!)!));
-        stage.to.skus.push(...driven.map((g) => skuInfoMap.get(g.sku!)!));
-      }
-
-      const maybe32DPGears = stageAllowsFamily(index, 'Gear')
-        ? stageFrom32DPGears(
-            [stage.from.teeth, stage.to.teeth],
-            index,
-            startingBore,
-            allGears,
-          )
-        : null;
-      if (maybe32DPGears) {
-        const [driving, driven] = maybe32DPGears;
-
-        stage.from.skus.push(...driving.map((g) => skuInfoMap.get(g.sku!)!));
-        stage.to.skus.push(...driven.map((g) => skuInfoMap.get(g.sku!)!));
-      }
-
-      const maybeGT2Pulleys = stageAllowsFamily(index, 'Belt')
-        ? stageFromGT2Pulleys(
-            [stage.from.teeth, stage.to.teeth],
-            index,
-            startingBore,
-            allPulleys,
-          )
-        : null;
-      if (maybeGT2Pulleys) {
-        const [driving, driven] = maybeGT2Pulleys;
-
-        stage.from.skus.push(...driving.map((p) => skuInfoMap.get(p.sku!)!));
-        stage.to.skus.push(...driven.map((p) => skuInfoMap.get(p.sku!)!));
-      }
-
-      const maybeHTDPulleys = stageAllowsFamily(index, 'Belt')
-        ? stageFromHTDPulleys(
-            [stage.from.teeth, stage.to.teeth],
-            index,
-            startingBore,
-            allPulleys,
-          )
-        : null;
-      if (maybeHTDPulleys) {
-        const [driving, driven] = maybeHTDPulleys;
-
-        stage.from.skus.push(...driving.map((p) => skuInfoMap.get(p.sku!)!));
-        stage.to.skus.push(...driven.map((p) => skuInfoMap.get(p.sku!)!));
-      }
-
-      const maybe25ChainSprockets = stageAllowsFamily(index, 'Chain')
-        ? stageFrom25ChainSprockets(
-            [stage.from.teeth, stage.to.teeth],
-            index,
-            startingBore,
-            allSprockets,
-          )
-        : null;
-      if (maybe25ChainSprockets) {
-        const [driving, driven] = maybe25ChainSprockets;
-
-        stage.from.skus.push(...driving.map((s) => skuInfoMap.get(s.sku!)!));
-        stage.to.skus.push(...driven.map((s) => skuInfoMap.get(s.sku!)!));
-      }
-
-      const maybe35ChainSprockets = stageAllowsFamily(index, 'Chain')
-        ? stageFrom35ChainSprockets(
-            [stage.from.teeth, stage.to.teeth],
-            index,
-            startingBore,
-            allSprockets,
-          )
-        : null;
-      if (maybe35ChainSprockets) {
-        const [driving, driven] = maybe35ChainSprockets;
-
-        stage.from.skus.push(...driving.map((s) => skuInfoMap.get(s.sku!)!));
-        stage.to.skus.push(...driven.map((s) => skuInfoMap.get(s.sku!)!));
-      }
-
-      const maybePlanetaries = stageAllowsFamily(index, 'Planetary')
-        ? stageFromPlanetaries(
-            [stage.from.teeth, stage.to.teeth],
-            index,
-            startingBore,
-            allPlanetaries,
-          )
-        : null;
-      if (maybePlanetaries) {
-        stage.from.skus.push(
-          ...maybePlanetaries.map(
-            (p) =>
-              skuInfoMap.get(`${p.sku}-${p.inputBore}-${p.slices.join(':')}`)!,
-          ),
-        );
-        stage.to.skus.push(
-          ...maybePlanetaries.map(
-            (p) =>
-              skuInfoMap.get(`${p.sku}-${p.outputBore}-${p.slices.join(':')}`)!,
-          ),
-        );
-      }
-
-      const sorter = (a: SkuInfo, b: SkuInfo) =>
-        a.family.localeCompare(b.family) ||
-        a.vendor.localeCompare(b.vendor) ||
-        a.pitch.localeCompare(b.pitch) ||
-        a.bore.localeCompare(b.bore) ||
-        a.sku.localeCompare(b.sku);
-      stage.from.skus.sort(sorter);
-      stage.to.skus.sort(sorter);
+  // Single-stage solutions.
+  for (const a of stage0) {
+    if (withinErrorThreshold(a.ratio, target)) {
+      solutions.push({ ratio: a.ratio, stages: [a.stage] });
     }
+  }
 
-    if (
-      maybeSolution.stages.every(
-        (stage) => stage.from.skus.length > 0 && stage.to.skus.length > 0,
+  // Two-stage solutions. The full set is collected; it is naturally bounded.
+  if (stage0.length > 0 && stage1.length > 0) {
+    const { sorted, ratios, lowerBound } = sortedIndex(stage1);
+    const min = ratios[0];
+    const max = ratios[ratios.length - 1];
+    for (const a of stage0) {
+      const needLo = (target - targetReductionErrorThreshold) / a.ratio;
+      const needHi = (target + targetReductionErrorThreshold) / a.ratio;
+      if (needHi < min || needLo > max) continue;
+      for (
+        let k = lowerBound(needLo - 1e-9);
+        k < sorted.length && ratios[k] <= needHi + 1e-9;
+        k++
+      ) {
+        const b = sorted[k];
+        const ratio = a.ratio * b.ratio;
+        if (withinErrorThreshold(ratio, target)) {
+          solutions.push({ ratio, stages: [a.stage, b.stage] });
+        }
+      }
+    }
+  }
+
+  // Three-stage solutions. The first two stages are enumerated and the third is
+  // resolved by binary search; only a bounded best-by-error set is kept so
+  // memory stays flat no matter how many combinations exist.
+  if (stage0.length > 0 && stage1.length > 0 && stage2.length > 0) {
+    const { sorted, ratios, lowerBound } = sortedIndex(stage2);
+    const min = ratios[0];
+    const max = ratios[ratios.length - 1];
+    const THREE_STAGE_CAP = 500;
+    const kept: { error: number; solution: GearboxSolution }[] = [];
+    const consider = (solution: GearboxSolution, error: number) => {
+      if (
+        kept.length >= THREE_STAGE_CAP &&
+        error >= kept[kept.length - 1].error
       )
-    ) {
-      solutions.push(maybeSolution);
+        return;
+      let lo = 0;
+      let hi = kept.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (kept[mid].error <= error) lo = mid + 1;
+        else hi = mid;
+      }
+      kept.splice(lo, 0, { error, solution });
+      if (kept.length > THREE_STAGE_CAP) kept.pop();
+    };
+
+    for (const a of stage0) {
+      for (const b of stage1) {
+        const ratio12 = a.ratio * b.ratio;
+        const needLo = (target - targetReductionErrorThreshold) / ratio12;
+        const needHi = (target + targetReductionErrorThreshold) / ratio12;
+        if (needHi < min || needLo > max) continue;
+        for (
+          let k = lowerBound(needLo - 1e-9);
+          k < sorted.length && ratios[k] <= needHi + 1e-9;
+          k++
+        ) {
+          const c = sorted[k];
+          const ratio = ratio12 * c.ratio;
+          if (withinErrorThreshold(ratio, target)) {
+            consider(
+              { ratio, stages: [a.stage, b.stage, c.stage] },
+              Math.abs(ratio - target),
+            );
+          }
+        }
+      }
     }
+
+    for (const entry of kept) solutions.push(entry.solution);
   }
 
   solutions.sort(
