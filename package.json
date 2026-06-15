@@ -58,7 +58,7 @@
     "@react-router/dev": "7.17.0",
     "@svgr/core": "8.1.0",
     "@svgr/plugin-jsx": "8.1.0",
-    "@tailwindcss/vite": "4.3.0",
+    "@tailwindcss/vite": "4.3.1",
     "@types/js-quantities": "1.6.6",
     "@types/node": "25.9.3",
     "@types/react": "19.2.17",
