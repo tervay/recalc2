@@ -82,11 +82,11 @@ importers:
         specifier: 1.2.1
         version: 1.2.1
       '@iconify-json/fa7-solid':
-        specifier: 1.2.4
-        version: 1.2.4
+        specifier: 1.2.5
+        version: 1.2.5
       '@iconify-json/lucide':
-        specifier: 1.2.114
-        version: 1.2.114
+        specifier: 1.2.115
+        version: 1.2.115
       '@iconify-json/streamline-ultimate':
         specifier: 1.2.2
         version: 1.2.2
@@ -687,11 +687,11 @@ packages:
   '@iconify-json/emojione-monotone@1.2.1':
     resolution: {integrity: sha512-cZSNcPsuiAD6HCzCh/2dYKGh3pNI0jJlxBxQWfC33cQsPtqYZqulGBvlkThXYNvDl8VxgVHT9u+izyX/yeEIkA==}
 
-  '@iconify-json/fa7-solid@1.2.4':
-    resolution: {integrity: sha512-Ns+ABU21PQpTjMZZ8idaQ9CDNYxjCJ/HY4+gkDsnAiJLkISMB2WIjoR2sjEj+Yok72sFwhXdYKBxwfRaGlwVpA==}
+  '@iconify-json/fa7-solid@1.2.5':
+    resolution: {integrity: sha512-e9EOtXuvDhiv6gBjbuW1q4bSR2tU5HmsDxqbLElQt2w2dR1Byh2mXfPLdRgEVwEr50uQV5tKxE3YAL6LTa+1fA==}
 
-  '@iconify-json/lucide@1.2.114':
-    resolution: {integrity: sha512-NbvH3B1BYo6wBtS7joLi7f2UVQOqK2dtZodMFf3kkBs+Tnh9TkRuy8oVHr1RM8UK6bUtvAXxfNlGAah0CuvPCw==}
+  '@iconify-json/lucide@1.2.115':
+    resolution: {integrity: sha512-plc4npdX0I2RpsE5FFIdkCjGtL9vG09FU/a2nZ+pJ0fFQV6mTqRlbUgZgUgSPDFswq0kaaNT229nW6AQRj5o9w==}
 
   '@iconify-json/streamline-ultimate@1.2.2':
     resolution: {integrity: sha512-0Vz9UHgMrmRUYt3JFqm0E6PDdroItVqK4fKf3T72jVwS2MAmc8dcqvCy+f0hzOVzJfo3G34ejFA9Y8l/K44hTQ==}
@@ -3798,11 +3798,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/fa7-solid@1.2.4':
+  '@iconify-json/fa7-solid@1.2.5':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/lucide@1.2.114':
+  '@iconify-json/lucide@1.2.115':
     dependencies:
       '@iconify/types': 2.0.0
 
